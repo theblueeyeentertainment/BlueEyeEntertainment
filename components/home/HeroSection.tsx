@@ -1,11 +1,176 @@
 "use client";
 
-import { useEffect } from "react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-export default function HeroSection({ categories, trailImages }: { categories: string[], trailImages?: string[] }) {
+interface Artist {
+  _id: string;
+  name: string;
+  category: string;
+  location?: { city?: string; state?: string };
+  media?: { images?: string[] };
+  performance?: { genres?: string[] };
+}
+
+interface Event {
+  _id: string;
+  title: string;
+  category: string;
+  date: string;
+  status: string;
+}
+
+export default function HeroSection({ categories }: { categories: string[] }) {
   const router = useRouter();
+
+  // states for dynamic widgets
+  const [artists, setArtists] = useState<Artist[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [currentArtistIndex, setCurrentArtistIndex] = useState(0);
+
+  // fallback premium mock data to ensure layout always looks gorgeous
+  const fallbackArtists: Artist[] = [
+    {
+      _id: "fall-1",
+      name: "Arijit Singh",
+      category: "Singers",
+      location: { city: "Mumbai", state: "MH" },
+      media: { images: ["https://placehold.co/600x400/1a1a1a/d4a017?text=Arijit+Singh"] },
+      performance: { genres: ["Bollywood", "Romantic"] }
+    },
+    {
+      _id: "fall-2",
+      name: "Zakir Khan",
+      category: "Comedians",
+      location: { city: "Indore", state: "MP" },
+      media: { images: ["https://placehold.co/600x400/1a1a1a/d4a017?text=Zakir+Khan"] },
+      performance: { genres: ["Comedy", "Storytelling"] }
+    },
+    {
+      _id: "fall-3",
+      name: "Nucleya",
+      category: "DJs",
+      location: { city: "Goa", state: "GA" },
+      media: { images: ["https://placehold.co/600x400/1a1a1a/d4a017?text=Nucleya"] },
+      performance: { genres: ["EDM", "Bass"] }
+    },
+    {
+      _id: "fall-4",
+      name: "Raftaar",
+      category: "Rappers",
+      location: { city: "Delhi", state: "DL" },
+      media: { images: ["https://placehold.co/600x400/1a1a1a/d4a017?text=Raftaar"] },
+      performance: { genres: ["Hip-Hop", "Rap"] }
+    }
+  ];
+
+  const fallbackEvents: Event[] = [
+    {
+      _id: "evt-1",
+      title: "Sunburn Arena Delhi",
+      category: "Concerts",
+      date: "2026-11-20",
+      status: "Upcoming"
+    },
+    {
+      _id: "evt-2",
+      title: "Laughter Therapy Tour",
+      category: "Comedy",
+      date: "2026-05-18",
+      status: "Ongoing"
+    },
+    {
+      _id: "evt-3",
+      title: "Sufi Beats Festival",
+      category: "Sufi Live",
+      date: "2026-06-05",
+      status: "Upcoming"
+    }
+  ];
+
+  const categoriesGrid = [
+    {
+      name: "Singers",
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+      )
+    },
+    {
+      name: "Comedians",
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5Z"/><path d="M9.5 10c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5Z"/><path d="M12 18c-2.4 0-4.4-1.2-5.4-3h10.8c-1 1.8-3 3-5.4 3Z"/><path d="M22 12A10 10 0 1 1 12 2a10 10 0 0 1 10 10Z"/></svg>
+      )
+    },
+    {
+      name: "DJs",
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 12l5 5"/></svg>
+      )
+    },
+    {
+      name: "Rappers",
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><line x1="16" y1="8" x2="16.01" y2="8"/></svg>
+      )
+    }
+  ];
+
+  // fetch data on mount
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [artistsRes, eventsRes] = await Promise.all([
+          fetch("/api/artists?featured=true&limit=6").then(r => r.json()),
+          fetch("/api/events?limit=3").then(r => r.json())
+        ]);
+
+        let fetchedArtists = [];
+        if (artistsRes?.success && artistsRes?.data?.artists?.length > 0) {
+          fetchedArtists = artistsRes.data.artists;
+        } else {
+          // Fallback: Fetch any real database artists if featured is empty
+          const dbArtistsRes = await fetch("/api/artists?limit=8").then(r => r.json());
+          if (dbArtistsRes?.success && dbArtistsRes?.data?.artists?.length > 0) {
+            fetchedArtists = dbArtistsRes.data.artists;
+          }
+        }
+
+        if (fetchedArtists.length > 0) {
+          setArtists(fetchedArtists);
+        } else {
+          setArtists(fallbackArtists);
+        }
+
+        if (eventsRes && !eventsRes.error && eventsRes.events?.length > 0) {
+          setEvents(eventsRes.events);
+        } else {
+          setEvents(fallbackEvents);
+        }
+      } catch (err) {
+        console.error("Failed to load hero panel data:", err);
+        setArtists(fallbackArtists);
+        setEvents(fallbackEvents);
+      }
+    }
+    fetchData();
+  }, []);
+
+  // auto rotate artist carousel (random fetch/rotation every 3.5 seconds)
+  useEffect(() => {
+    if (artists.length === 0) return;
+    const interval = setInterval(() => {
+      setCurrentArtistIndex((prev) => {
+        if (artists.length <= 1) return 0;
+        let nextIdx = Math.floor(Math.random() * artists.length);
+        while (nextIdx === prev) {
+          nextIdx = Math.floor(Math.random() * artists.length);
+        }
+        return nextIdx;
+      });
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [artists]);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -17,59 +182,159 @@ export default function HeroSection({ categories, trailImages }: { categories: s
     router.push(url);
   };
 
+  const activeArtist = artists[currentArtistIndex] || fallbackArtists[0];
+
   return (
     <section id="hero">
-      <div className="hero-content">
-        <div className="hero-badge">India's No. 1 Artist Booking Platform</div>
+      <div className="hero-wrapper">
+        
+        {/* Left Side Section — Centered and kept to 50% width on Desktop */}
+        <div className="hero-left">
+          <div className="hero-badge">India's No. 1 Artist Booking Platform</div>
 
-        <h1 className="hero-title">
-          Book the <em>Perfect Artist</em><br />for Every Stage
-        </h1>
+          <h1 className="hero-title">
+            Book the <em>Perfect Artist</em><br />for Every Stage
+          </h1>
 
-        <p className="hero-sub">
-          From chart-topping Bollywood singers to legendary Sufi maestros — discover, connect, and book artists across India and the world.
-        </p>
+          <p className="hero-sub">
+            From chart-topping Bollywood singers to legendary Sufi maestros — discover, connect, and book artists across India and the world.
+          </p>
 
-        <form className="hero-search" onSubmit={handleSearch}>
-          <input type="text" name="q" placeholder="Search artist by name…" required />
-          <select name="category">
-            <option value="">All Categories</option>
-            {categories.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-          <button type="submit">Search ↗</button>
-        </form>
+          <form className="hero-search" onSubmit={handleSearch}>
+            <input type="text" name="q" placeholder="Search artist by name…" required />
+            <select name="category">
+              <option value="">All Categories</option>
+              {categories.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            <button type="submit">Search ↗</button>
+          </form>
 
-        <div className="hero-tags">
-          <div className="hero-tag">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
-            Singers
-          </div>
-          <div className="hero-tag">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5Z"/><path d="M9.5 10c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5Z"/><path d="M12 18c-2.4 0-4.4-1.2-5.4-3h10.8c-1 1.8-3 3-5.4 3Z"/><path d="M22 12A10 10 0 1 1 12 2a10 10 0 0 1 10 10Z"/></svg>
-            Comedians
-          </div>
-          <div className="hero-tag">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 12l5 5"/></svg>
-            DJs
-          </div>
-          <div className="hero-tag">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
-            Rappers
-          </div>
-          <div className="hero-tag">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
-            Bollywood
+          <div className="hero-tags">
+            <Link href="/search?category=Singers" className="hero-tag">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+              Singers
+            </Link>
+            <Link href="/search?category=Comedians" className="hero-tag">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5Z"/><path d="M9.5 10c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5Z"/><path d="M12 18c-2.4 0-4.4-1.2-5.4-3h10.8c-1 1.8-3 3-5.4 3Z"/><path d="M22 12A10 10 0 1 1 12 2a10 10 0 0 1 10 10Z"/></svg>
+              Comedians
+            </Link>
+            <Link href="/search?category=DJs" className="hero-tag">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 12l5 5"/></svg>
+              DJs
+            </Link>
           </div>
         </div>
+
+        {/* Right Side Section — Interactive Live Performance Widgets Panel */}
+        <div className="hero-right">
+          
+          {/* Top Right Component — Auto-rotating Artist Carousel Card */}
+          <div className="hero-right-top">
+            <div className="hero-glass-glow"></div>
+            {activeArtist && (
+              <div 
+                className="carousel-slide" 
+                key={activeArtist._id}
+                style={{
+                  backgroundImage: `url(${
+                    activeArtist.media?.images?.[0] 
+                      ? (activeArtist.media.images[0].startsWith('http') 
+                          ? activeArtist.media.images[0] 
+                          : `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT || ""}/${activeArtist.media.images[0].startsWith('/') ? activeArtist.media.images[0].slice(1) : activeArtist.media.images[0]}`)
+                      : "https://placehold.co/600x400/1a1a1a/d4a017?text=No+Image"
+                  })`
+                }}
+              >
+                <span className="carousel-live-badge">FEATURED</span>
+                
+                <div className="carousel-details">
+                  <span className="carousel-cat-label">{activeArtist.category}</span>
+                  <h3 className="carousel-artist-name">{activeArtist.name}</h3>
+                  <p className="carousel-meta-text">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                    {activeArtist.location?.city || "Mumbai"}, {activeArtist.location?.state || "MH"}
+                  </p>
+                  <div className="carousel-genres-row">
+                    {activeArtist.performance?.genres?.slice(0, 2).map((g) => (
+                      <span key={g} className="carousel-genre-pill">{g}</span>
+                    ))}
+                  </div>
+                  <Link href={`/artists/${activeArtist.name.toLowerCase().replace(/ /g, "-")}`} className="carousel-book-btn">
+                    View Profile ↗
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Bottom Right Components — Categories pulse matrix (left) and Real-time Events Stack (right) */}
+          <div className="hero-right-bottom">
+            
+            {/* Left Block — Random fading category matrix */}
+            <div className="hero-right-bottom-left">
+              {categoriesGrid.map((cat, idx) => {
+                // Determine CSS animation offset delay for clockwise flow
+                // Singers (0) -> Comedians (1) -> Rappers (3) -> DJs (2)
+                let delay = "0s";
+                if (idx === 0) delay = "0s";
+                else if (idx === 1) delay = "-1.0s";
+                else if (idx === 3) delay = "-2.0s";
+                else if (idx === 2) delay = "-3.0s";
+
+                return (
+                  <Link 
+                    href={`/search?category=${cat.name}`} 
+                    key={cat.name} 
+                    className="category-pulse-box"
+                    style={{ animationDelay: delay }}
+                  >
+                    <div className="category-pulse-icon">
+                      {cat.icon}
+                    </div>
+                    <span className="category-pulse-name">{cat.name}</span>
+                    <div className="pulse-neon-border"></div>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Right Block — Real-time top 3 events widget */}
+            <div className="hero-right-bottom-right">
+              <div className="widget-header">
+                <span className="widget-ping-dot"></span>
+                <span className="widget-title">Live Arenas</span>
+              </div>
+              
+              <div className="widget-events-list">
+                {events.map((evt) => (
+                  <div className="widget-event-row" key={evt._id}>
+                    <div className="widget-event-badge-row">
+                      <span className={`event-status-pill ${evt.status.toLowerCase()}`}>
+                        {evt.status}
+                      </span>
+                      <span className="event-cat-pill">{evt.category}</span>
+                    </div>
+                    <h4 className="event-widget-title">{evt.title}</h4>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
 
       <div className="scroll-hint">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M7 10l5 5 5-5" />
-        </svg>
-        Scroll to explore
+        <div className="scroll-mouse">
+          <div className="scroll-wheel"></div>
+        </div>
+        <span style={{ fontSize: '0.68rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.15em', fontFamily: 'var(--font-primary)' }}>
+          Scroll to explore
+        </span>
       </div>
     </section>
   );

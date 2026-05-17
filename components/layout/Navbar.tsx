@@ -129,7 +129,6 @@ export default function Navbar() {
             <Link href="/login?view=register" onClick={closeNav}>Register</Link>
           </>
         )}
-        <Link href="/contact" className="btn-primary btn-sm" style={{ borderRadius: '10px', justifyContent: 'center', marginTop: 'auto', padding: '0.75rem' }} onClick={closeNav}>Book Artist ✦</Link>
       </nav>
     </>
   );

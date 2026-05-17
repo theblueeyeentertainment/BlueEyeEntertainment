@@ -38,6 +38,26 @@ export default async function HomePage() {
     <div className="relative overflow-hidden">
       <HomeBackground trailImages={trailImages} />
       <HeroSection categories={categories as string[]} trailImages={trailImages} />
+      
+      {/* Infinite Scrolling Premium Gold Marquee Row */}
+      <div className="marquee-wrap">
+        <div className="marquee-track">
+          <div className="marquee-item">100% Verified Celebrity Artists</div>
+          <div className="marquee-item">Direct Secure Bookings</div>
+          <div className="marquee-item">24/7 Reserved Concierge Assistance</div>
+          <div className="marquee-item">India's Largest Booking Hub</div>
+          <div className="marquee-item">5000+ Staged Performances</div>
+          <div className="marquee-item">Transparent Lowest Commission</div>
+          {/* Double list for seamless perpetual loop */}
+          <div className="marquee-item">100% Verified Celebrity Artists</div>
+          <div className="marquee-item">Direct Secure Bookings</div>
+          <div className="marquee-item">24/7 Reserved Concierge Assistance</div>
+          <div className="marquee-item">India's Largest Booking Hub</div>
+          <div className="marquee-item">5000+ Staged Performances</div>
+          <div className="marquee-item">Transparent Lowest Commission</div>
+        </div>
+      </div>
+
       <CategoryGrid counts={counts} categories={categories as string[]} />
       <FeaturedArtists artists={displayArtists} favorites={favorites} />
 
