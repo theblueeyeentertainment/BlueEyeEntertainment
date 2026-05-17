@@ -68,6 +68,10 @@ export default function HomeBackground({ trailImages }: { trailImages?: string[]
             if (oldest) {
               oldest.classList.remove("active");
               oldest.classList.add("exit");
+              const tx = oldest.getAttribute("data-x");
+              const ty = oldest.getAttribute("data-y");
+              oldest.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(0.1) rotate(15deg)`;
+              oldest.style.opacity = "0";
               setTimeout(() => oldest.remove(), 400);
             }
           }
@@ -78,6 +82,10 @@ export default function HomeBackground({ trailImages }: { trailImages?: string[]
               if (idx > -1) trailElements.splice(idx, 1);
               img.classList.remove("active");
               img.classList.add("exit");
+              const tx = img.getAttribute("data-x");
+              const ty = img.getAttribute("data-y");
+              img.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(0.1) rotate(15deg)`;
+              img.style.opacity = "0";
               setTimeout(() => img.remove(), 400);
             }
           }, 600);

@@ -12,7 +12,11 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   ]);
   
   const q = params.q || "";
-  const artists = q ? await searchArtists(q, { category: params.category, city: params.city }) : [];
+  const searchResult = q 
+    ? await searchArtists(q, { category: params.category, city: params.city }) 
+    : { artists: [], pagination: { total: 0 } };
+  const artists = searchResult.artists;
+  const totalCount = searchResult.pagination.total;
 
   const favorites = session?.user ? await getUserFavorites((session.user as any).id) : [];
 
@@ -22,7 +26,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         <div>
           <div className="section-label">Search Results</div>
           <h2 className="section-title">Results for <span>"{q}"</span></h2>
-          <p className="section-desc">Found {artists.length} artists matching your search.</p>
+          <p className="section-desc">Found {totalCount} artists matching your search.</p>
         </div>
       </div>
 
@@ -33,7 +37,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         </div>
       ) : (
         <div className="artists-grid">
-          {artists.map((artist, i) => (
+          {artists.map((artist: any, i: number) => (
             <ArtistCard 
               key={artist.slug} 
               artist={artist} 

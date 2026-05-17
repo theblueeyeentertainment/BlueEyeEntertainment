@@ -40,9 +40,13 @@ export async function GET(request: Request) {
     const featured = searchParams.has("featured") ? searchParams.get("featured") === "true" : undefined;
 
     if (q) {
-      const results = await searchArtists(q, { category, city });
-      // searchArtists returns array, we normalize to match getArtists structure for dashboard
-      return apiSuccess({ artists: results, total: results.length, page: 1, totalPages: 1 });
+      const { artists, pagination } = await searchArtists(q, { category, city }, { page, limit });
+      return apiSuccess({
+        artists,
+        total: pagination.total,
+        page: pagination.page,
+        totalPages: pagination.totalPages
+      });
     }
 
     const data = await getArtists({ category, city, page, limit, featured });

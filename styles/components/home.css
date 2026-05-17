@@ -766,9 +766,9 @@
   padding: 0.75rem 0;
   background: rgba(5, 7, 10, 0.7);
   backdrop-filter: blur(10px);
-  /* Gorgeous fading mask on both sides! */
-  mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  /* Gorgeous deep fading mask on both sides! */
+  mask-image: linear-gradient(to right, transparent, #000 20%, #000 80%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 20%, #000 80%, transparent);
 }
 
 .marquee-track {
@@ -1606,7 +1606,6 @@ section {
 
 .mouse-trail-img.exit {
   opacity: 0 !important;
-  transform: scale(0.1) rotate(15deg) !important;
 }
 
 /* ── SKELETON SHIMMER ANIMATION ─────────────────────── */
@@ -1654,6 +1653,9 @@ section {
   position: relative;
   z-index: 10;
   margin-top: 1.5rem;
+  /* Gorgeous deep fading mask on both sides! */
+  mask-image: linear-gradient(to right, transparent, #000 20%, #000 80%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 20%, #000 80%, transparent);
 }
 
 .divider-marquee-track {
