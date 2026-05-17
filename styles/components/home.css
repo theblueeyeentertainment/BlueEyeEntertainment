@@ -543,6 +543,14 @@
 }
 
 @media (max-width: 768px) {
+  #hero {
+    padding-top: 0.5rem;
+    padding-bottom: 2.5rem;
+  }
+  .hero-wrapper {
+    padding-top: calc(var(--hdr-h) + 1rem);
+    gap: 1.8rem;
+  }
   .hero-right-bottom-left {
     padding: 0.85rem;
     gap: 0.5rem;

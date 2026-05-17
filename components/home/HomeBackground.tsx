@@ -99,17 +99,17 @@ export default function HomeBackground({ trailImages }: { trailImages?: string[]
       <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, opacity: 0.6, pointerEvents: 'none' }}>
         <LightRays
           raysOrigin="top-center"
-          raysColor="#ffffff"
+          raysColor="#1d4ed8"
           raysSpeed={1}
-          lightSpread={0.5}
-          rayLength={3}
+          lightSpread={1.0}
+          rayLength={2.5}
           followMouse={true}
-          mouseInfluence={0.1}
+          mouseInfluence={0.15}
           noiseAmount={0}
-          distortion={0}
+          distortion={0.02}
           className="custom-rays"
           pulsating={false}
-          fadeDistance={1}
+          fadeDistance={1.8}
           saturation={1}
         />
       </div>
