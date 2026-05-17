@@ -6,7 +6,10 @@ const STATUS_OPTIONS = ["Pending", "Approved", "Rejected", "Waitlisted"] as cons
 type RegStatus = typeof STATUS_OPTIONS[number];
 
 const statusColors: Record<RegStatus, string> = {
-  Pending: "#d4a017", Approved: "#22c55e", Rejected: "#f87171", Waitlisted: "#a78bfa",
+  Pending: "#d4a017",
+  Approved: "#22c55e",
+  Rejected: "#f87171",
+  Waitlisted: "#a78bfa",
 };
 
 export default function RegistrationTable({ initialRegistrations, eventId }: {
@@ -36,22 +39,17 @@ export default function RegistrationTable({ initialRegistrations, eventId }: {
 
   if (regs.length === 0) {
     return (
-      <div style={{ textAlign: "center", padding: "2.5rem", color: "var(--muted,#9ca3af)", fontSize: "0.875rem",
-        border: "1px dashed rgba(255,255,255,0.1)", borderRadius: "0.75rem" }}>
-        No registrations yet.
+      <div style={{
+        textAlign: "center",
+        padding: "3.5rem 2rem",
+        color: "var(--text3)",
+        border: "1px dashed rgba(255,255,255,0.1)",
+        borderRadius: "1rem"
+      }}>
+        No guest registrations received for this event yet.
       </div>
     );
   }
-
-  const thStyle: React.CSSProperties = {
-    padding: "0.6rem 0.85rem", textAlign: "left", fontSize: "0.72rem",
-    fontWeight: 700, color: "var(--muted,#9ca3af)", letterSpacing: "0.06em",
-    textTransform: "uppercase", borderBottom: "1px solid rgba(255,255,255,0.07)",
-  };
-  const tdStyle: React.CSSProperties = {
-    padding: "0.65rem 0.85rem", fontSize: "0.82rem", color: "var(--text)",
-    borderBottom: "1px solid rgba(255,255,255,0.05)",
-  };
 
   const counts = STATUS_OPTIONS.reduce((acc, s) => {
     acc[s] = regs.filter(r => r.status === s).length;
@@ -59,58 +57,79 @@ export default function RegistrationTable({ initialRegistrations, eventId }: {
   }, {} as Record<RegStatus, number>);
 
   return (
-    <div>
+    <div className="fade-in">
       {/* Summary pills */}
-      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: "1.25rem" }}>
+      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: "2rem" }}>
         {STATUS_OPTIONS.map(s => (
-          <span key={s} style={{
-            padding: "4px 12px", borderRadius: "999px", fontSize: "0.78rem", fontWeight: 600,
-            color: statusColors[s], background: `${statusColors[s]}18`,
-            border: `1px solid ${statusColors[s]}33`,
+          <span key={s} className="admin-badge" style={{
+            color: statusColors[s],
+            background: `${statusColors[s]}10`,
+            border: `1px solid ${statusColors[s]}22`,
+            fontSize: "0.78rem",
+            padding: "6px 14px",
+            borderRadius: "8px",
           }}>
-            {s}: {counts[s]}
+            {s}: <strong style={{ color: "#ffffff", marginLeft: 4 }}>{counts[s]}</strong>
           </span>
         ))}
       </div>
 
-      <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <div className="overflow-x-auto">
+        <table className="admin-table">
           <thead>
             <tr>
-              <th style={thStyle}>Name</th>
-              <th style={thStyle}>Email</th>
-              <th style={thStyle}>Phone</th>
-              <th style={thStyle}>Guests</th>
-              <th style={thStyle}>Message</th>
-              <th style={thStyle}>Submitted</th>
-              <th style={thStyle}>Status</th>
+              {/* Disable the 48px width lock on the first column */}
+              <th style={{ width: "auto", minWidth: "160px", maxWidth: "none", whiteSpace: "nowrap" }}>Name</th>
+              <th style={{ whiteSpace: "nowrap" }}>Email Address</th>
+              <th style={{ whiteSpace: "nowrap" }}>Phone</th>
+              <th className="text-center" style={{ whiteSpace: "nowrap" }}>Guests</th>
+              <th style={{ whiteSpace: "nowrap" }}>Request Message</th>
+              <th style={{ whiteSpace: "nowrap" }}>Submitted</th>
+              <th className="text-right" style={{ whiteSpace: "nowrap" }}>Status Action</th>
             </tr>
           </thead>
           <tbody>
             {regs.map(r => (
               <tr key={r._id}>
-                <td style={tdStyle}>{r.guestName}</td>
-                <td style={tdStyle}><a href={`mailto:${r.guestEmail}`} style={{ color: "var(--gold,#d4a017)", textDecoration: "none" }}>{r.guestEmail}</a></td>
-                <td style={tdStyle}>{r.guestPhone}</td>
-                <td style={{ ...tdStyle, textAlign: "center" }}>{r.headcount}</td>
-                <td style={{ ...tdStyle, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
-                  title={r.message}>{r.message || "—"}</td>
-                <td style={{ ...tdStyle, whiteSpace: "nowrap", color: "var(--muted,#9ca3af)", fontSize: "0.75rem" }}>
-                  {new Date(r.createdAt).toLocaleDateString("en-IN")}
+                {/* Disable the 48px width lock on the first column */}
+                <td style={{ width: "auto", minWidth: "160px", maxWidth: "none", fontWeight: "bold" }} className="text-text">
+                  {r.guestName}
                 </td>
-                <td style={tdStyle}>
+                <td style={{ whiteSpace: "nowrap" }}>
+                  <a href={`mailto:${r.guestEmail}`} style={{ color: "var(--gold,#d4a017)", textDecoration: "none" }} className="hover:underline">
+                    {r.guestEmail}
+                  </a>
+                </td>
+                <td style={{ whiteSpace: "nowrap" }} className="text-text2">
+                  {r.guestPhone}
+                </td>
+                <td className="text-center font-bold text-text">
+                  {r.headcount}
+                </td>
+                <td style={{ maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} className="text-text3" title={r.message}>
+                  {r.message || "—"}
+                </td>
+                <td style={{ whiteSpace: "nowrap", fontSize: "0.8-rem" }} className="text-text3">
+                  {new Date(r.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                </td>
+                <td className="text-right">
                   <select
                     value={r.status}
                     disabled={loadingId === r._id}
                     onChange={e => updateStatus(r._id, e.target.value as RegStatus)}
                     style={{
-                      padding: "4px 8px", borderRadius: "0.4rem", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer",
-                      background: `${statusColors[r.status as RegStatus]}18`,
-                      border: `1px solid ${statusColors[r.status as RegStatus]}44`,
+                      padding: "6px 16px 6px 10px",
+                      borderRadius: "8px",
+                      fontSize: "0.78rem",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      background: `${statusColors[r.status as RegStatus]}15`,
+                      border: `1px solid ${statusColors[r.status as RegStatus]}35`,
                       color: statusColors[r.status as RegStatus],
                       outline: "none",
+                      colorScheme: "dark",
                     }}>
-                    {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                    {STATUS_OPTIONS.map(s => <option key={s} value={s} style={{ background: "#11141a", color: "#ffffff" }}>{s}</option>)}
                   </select>
                 </td>
               </tr>

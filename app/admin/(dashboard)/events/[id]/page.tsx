@@ -49,28 +49,13 @@ export default function AdminEventDetailPage({ params }: { params: Promise<{ id:
     { key: "registrations", label: `Guest Registrations (${registrations.length})` },
   ];
 
-  const tabBtn = (key: Tab, label: string) => (
-    <button
-      key={key}
-      onClick={() => setTab(key)}
-      className={`py-3 px-6 text-sm font-semibold transition-all border-b-2 outline-none ${
-        tab === key
-          ? "border-gold text-gold font-bold"
-          : "border-transparent text-text3 hover:text-white"
-      }`}
-      style={{ background: "transparent" }}
-    >
-      {label}
-    </button>
-  );
-
   if (loading) return <div className="p-16 text-center text-text3">Loading event details...</div>;
   if (!event) return <div className="p-16 text-center text-crimson">Event not found.</div>;
 
   return (
     <div className="fade-in">
       {/* Back Link & Header */}
-      <div className="mb-8">
+      <div style={{ marginBottom: "3rem" }}>
         <Link href="/admin/events" className="text-text3 no-underline text-sm flex items-center gap-2 mb-4 hover:text-white transition-colors">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
           Back to Events List
@@ -90,20 +75,62 @@ export default function AdminEventDetailPage({ params }: { params: Promise<{ id:
         </div>
       </div>
 
-      {/* Modern Tabs Navigation */}
-      <div className="flex border-b border-white/10 mb-8 overflow-x-auto">
-        {tabs.map(t => tabBtn(t.key, t.label))}
+      {/* Modern Segmented Luxury Tabs Navigation */}
+      <div className="flex overflow-x-auto" style={{ gap: "0.75rem", padding: "8px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "16px", marginBottom: "3.5rem", width: "fit-content", maxWidth: "100%", boxSizing: "border-box" }}>
+        {tabs.map(t => {
+          const isActive = tab === t.key;
+          return (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className="text-xs font-bold uppercase tracking-widest transition-all border-none outline-none cursor-pointer"
+              style={{
+                padding: "14px 28px",
+                background: isActive ? "rgba(212,160,23,0.08)" : "transparent",
+                color: isActive ? "var(--gold,#d4a017)" : "var(--text3,#9ca3af)",
+                border: "1px solid",
+                borderColor: isActive ? "rgba(212,160,23,0.35)" : "transparent",
+                borderRadius: "12px",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                boxShadow: isActive ? "0 4px 20px rgba(0,0,0,0.15)" : "none",
+              }}
+              onMouseEnter={e => {
+                if (!isActive) {
+                  e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+                  e.currentTarget.style.color = "#ffffff";
+                }
+              }}
+              onMouseLeave={e => {
+                if (!isActive) {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.color = "var(--text3,#9ca3af)";
+                }
+              }}
+            >
+              {t.key === "details" && (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              )}
+              {t.key === "thread" && (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              )}
+              {t.key === "registrations" && (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              )}
+              {t.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Tab Contents */}
       {tab === "details" && (
-        <div className="admin-table-container p-8" style={{ maxWidth: "800px" }}>
-          <EventForm mode="edit" eventId={id} initial={event} />
-        </div>
+        <EventForm mode="edit" eventId={id} initial={event} />
       )}
 
       {tab === "thread" && (
-        <div style={{ maxWidth: "800px" }}>
+        <div >
           <EventUpdateForm eventId={id} onPosted={u => setUpdates(prev => [u, ...prev])} />
           
           <div className="flex flex-col gap-4 mt-6">

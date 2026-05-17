@@ -10,7 +10,7 @@ export default async function NewEventPage() {
   if (!session || (session.user as any).role !== "admin") redirect("/login");
 
   return (
-    <div className="fade-in" style={{ maxWidth: "800px" }}>
+    <div className="fade-in">
       <div className="mb-10">
         <h1 className="admin-title">
           Create <span className="text-gold">New Event</span>

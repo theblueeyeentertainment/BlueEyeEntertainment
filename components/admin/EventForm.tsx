@@ -30,9 +30,50 @@ export default function EventForm({ initial, mode, eventId }: EventFormProps) {
     venueAddress: initial?.venue?.address || "",
   });
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
 
   const set = (key: string, val: any) => setForm(f => ({ ...f, [key]: val }));
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError("");
+    try {
+      const eventSlug = form.title
+        ? form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+        : "event";
+      const extension = file.name.split(".").pop() || "jpg";
+      const newFileName = `${eventSlug}-${Date.now()}.${extension}`;
+      const renamedFile = new File([file], newFileName, { type: file.type });
+
+      const data = new FormData();
+      data.append("file", renamedFile);
+      data.append("folder", `/events/${eventSlug}`);
+
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: data,
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        const fullUrl = result.url.startsWith("http")
+          ? result.url
+          : `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/${result.filePath}`;
+        set("coverImage", fullUrl);
+      } else {
+        throw new Error(result.error || "Upload failed");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError(`Image upload failed: ${err.message}`);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -73,84 +114,263 @@ export default function EventForm({ initial, mode, eventId }: EventFormProps) {
     }
   }
 
-  const inputStyle: React.CSSProperties = {
-    width: "100%", padding: "0.6rem 0.85rem", borderRadius: "0.5rem",
-    background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
-    color: "var(--text)", fontSize: "0.875rem", outline: "none", boxSizing: "border-box",
-  };
-  const label: React.CSSProperties = {
-    display: "block", fontSize: "0.78rem", fontWeight: 600,
-    color: "var(--muted,#9ca3af)", marginBottom: "0.3rem", letterSpacing: "0.04em",
-  };
-  const row: React.CSSProperties = { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" };
-
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-      {error && <p style={{ color: "#f87171", fontSize: "0.85rem", margin: 0, padding: "0.5rem 0.75rem", background: "rgba(248,113,113,0.08)", borderRadius: "0.4rem" }}>{error}</p>}
+    <div className="admin-form-main-card">
+      <form onSubmit={handleSubmit} className="w-full">
+      {error && (
+        <p className="p-4 mb-6 rounded-xl bg-crimson/10 border border-crimson/20 text-crimson text-sm">
+          {error}
+        </p>
+      )}
 
-      <div><label style={label}>Title *</label><input style={inputStyle} required value={form.title} onChange={e => set("title", e.target.value)} placeholder="Event title" /></div>
+      {/* Section 1: Event Information */}
+      <div className="admin-form-row-section">
+        <h3 className="admin-form-row-title">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          Event Specifications
+        </h3>
 
-      <div style={row}>
-        <div>
-          <label style={label}>Category *</label>
-          <select style={inputStyle} value={form.category} onChange={e => set("category", e.target.value)}>
-            {["Concert", "Corporate", "Festival", "Wedding Show", "Comedy Night", "Live Performance", "Other"].map(c => <option key={c}>{c}</option>)}
-          </select>
-        </div>
-        <div>
-          <label style={label}>Status</label>
-          <select style={inputStyle} value={form.status} onChange={e => set("status", e.target.value)}>
-            {["Upcoming", "Ongoing", "Completed", "Cancelled"].map(s => <option key={s}>{s}</option>)}
-          </select>
-        </div>
-      </div>
-
-      <div><label style={label}>Short Description</label><input style={inputStyle} value={form.shortDescription} onChange={e => set("shortDescription", e.target.value)} placeholder="One-liner for card preview" /></div>
-      <div><label style={label}>Full Description</label><textarea style={{ ...inputStyle, minHeight: 120, resize: "vertical" }} value={form.description} onChange={e => set("description", e.target.value)} placeholder="Full event details…" /></div>
-
-      <div style={row}>
-        <div><label style={label}>Start Date & Time *</label><input style={inputStyle} required type="datetime-local" value={form.startDate} onChange={e => set("startDate", e.target.value)} /></div>
-        <div><label style={label}>End Date & Time</label><input style={inputStyle} type="datetime-local" value={form.endDate} onChange={e => set("endDate", e.target.value)} /></div>
-      </div>
-
-      <div><label style={label}>Cover Image URL (ImageKit)</label><input style={inputStyle} value={form.coverImage} onChange={e => set("coverImage", e.target.value)} placeholder="https://ik.imagekit.io/…" /></div>
-
-      <fieldset style={{ border: "1px solid rgba(255,255,255,0.08)", borderRadius: "0.75rem", padding: "1rem" }}>
-        <legend style={{ ...label, padding: "0 0.5rem" }}>Venue</legend>
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-          <div style={row}>
-            <div><label style={label}>Venue Name</label><input style={inputStyle} value={form.venueName} onChange={e => set("venueName", e.target.value)} placeholder="Hall / Stadium name" /></div>
-            <div><label style={label}>City</label><input style={inputStyle} value={form.venueCity} onChange={e => set("venueCity", e.target.value)} /></div>
+        <div className="admin-field-row">
+          <div className="admin-field-group">
+            <label className="admin-field-label">Event Title *</label>
+            <input
+              type="text"
+              required
+              className="admin-input-base"
+              value={form.title}
+              onChange={e => set("title", e.target.value)}
+              placeholder="e.g. BlueEye Electro Night"
+            />
           </div>
-          <div style={row}>
-            <div><label style={label}>State</label><input style={inputStyle} value={form.venueState} onChange={e => set("venueState", e.target.value)} /></div>
-            <div><label style={label}>Address</label><input style={inputStyle} value={form.venueAddress} onChange={e => set("venueAddress", e.target.value)} /></div>
+          <div className="admin-field-row" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+            <div className="admin-field-group">
+              <label className="admin-field-label">Category *</label>
+              <select
+                className="admin-input-base"
+                value={form.category}
+                onChange={e => set("category", e.target.value)}
+                style={{ paddingRight: "2.5rem" }}
+              >
+                {["Concert", "Corporate", "Festival", "Wedding Show", "Comedy Night", "Live Performance", "Other"].map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div className="admin-field-group">
+              <label className="admin-field-label">Status</label>
+              <select
+                className="admin-input-base"
+                value={form.status}
+                onChange={e => set("status", e.target.value)}
+                style={{ paddingRight: "2.5rem" }}
+              >
+                {["Upcoming", "Ongoing", "Completed", "Cancelled"].map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
           </div>
         </div>
-      </fieldset>
 
-      <div style={row}>
-        <div><label style={label}>Capacity (0 = unlimited)</label><input style={inputStyle} type="number" min={0} value={form.capacity} onChange={e => set("capacity", e.target.value)} /></div>
-        <div><label style={label}>Tags (comma-separated)</label><input style={inputStyle} value={form.tags} onChange={e => set("tags", e.target.value)} placeholder="music, outdoor, family" /></div>
+        <div className="admin-field-row mt-6">
+          <div className="admin-field-group w-full">
+            <label className="admin-field-label">Short Description</label>
+            <input
+              type="text"
+              className="admin-input-base"
+              value={form.shortDescription}
+              onChange={e => set("shortDescription", e.target.value)}
+              placeholder="Catchy tagline or sub-title for cards"
+            />
+          </div>
+        </div>
+
+        <div className="admin-field-group mt-6">
+          <label className="admin-field-label">Detailed Event Description</label>
+          <textarea
+            className="admin-input-base admin-textarea"
+            style={{ minHeight: "130px" }}
+            value={form.description}
+            onChange={e => set("description", e.target.value)}
+            placeholder="Describe the schedule, outline key acts, tickets info, performative structure..."
+          />
+        </div>
       </div>
 
-      <div style={{ display: "flex", gap: "1.5rem" }}>
-        <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text)", cursor: "pointer" }}>
-          <input type="checkbox" checked={form.featured} onChange={e => set("featured", e.target.checked)} />
-          Featured on home page
-        </label>
-        <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text)", cursor: "pointer" }}>
-          <input type="checkbox" checked={form.registrationOpen} onChange={e => set("registrationOpen", e.target.checked)} />
-          Registration open
-        </label>
+      {/* Section 2: Date, Time & Seating */}
+      <div className="admin-form-row-section">
+        <h3 className="admin-form-row-title">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Schedule & Logistics
+        </h3>
+
+        <div className="admin-field-row">
+          <div className="admin-field-group">
+            <label className="admin-field-label">Start Date & Time *</label>
+            <input
+              type="datetime-local"
+              required
+              className="admin-input-base"
+              value={form.startDate}
+              onChange={e => set("startDate", e.target.value)}
+              style={{ colorScheme: "dark" }}
+            />
+          </div>
+          <div className="admin-field-group">
+            <label className="admin-field-label">End Date & Time (Optional)</label>
+            <input
+              type="datetime-local"
+              className="admin-input-base"
+              value={form.endDate}
+              onChange={e => set("endDate", e.target.value)}
+              style={{ colorScheme: "dark" }}
+            />
+          </div>
+        </div>
+
+        <div className="admin-field-row mt-6">
+          <div className="admin-field-group">
+            <label className="admin-field-label">Capacity Limit (0 = Unlimited)</label>
+            <input
+              type="number"
+              min={0}
+              className="admin-input-base"
+              value={form.capacity}
+              onChange={e => set("capacity", parseInt(e.target.value) || 0)}
+            />
+          </div>
+          <div className="admin-field-group">
+            <label className="admin-field-label">Tags (comma-separated)</label>
+            <input
+              type="text"
+              className="admin-input-base"
+              value={form.tags}
+              onChange={e => set("tags", e.target.value)}
+              placeholder="e.g. music, outdoor, EDM, corporate"
+            />
+          </div>
+        </div>
       </div>
 
-      <div style={{ display: "flex", gap: "0.75rem", paddingTop: "0.5rem" }}>
-        <button type="submit" disabled={saving} className="btn-primary" style={{ opacity: saving ? 0.7 : 1 }}>
-          {saving ? "Saving…" : mode === "edit" ? "Save Changes ✦" : "Create Event ✦"}
+      {/* Section 3: Cover Image Upload */}
+      <div className="admin-form-row-section">
+        <h3 className="admin-form-row-title">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Media & Branding
+        </h3>
+
+        <div className="admin-field-group">
+          <label className="admin-field-label mb-4">Cover Image (ImageKit Auto-Renaming Uploader)</label>
+          <div className="flex gap-4 items-center flex-wrap">
+            {form.coverImage ? (
+              <div className="admin-upload-item" style={{ width: 150, height: 150, position: "relative" }}>
+                <img src={form.coverImage} alt="Cover Preview" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "16px" }} />
+                <div onClick={() => set("coverImage", "")} className="admin-upload-delete" style={{ borderRadius: "16px", cursor: "pointer" }}>
+                  Remove Cover
+                </div>
+              </div>
+            ) : (
+              <label className="admin-upload-btn" style={{ width: 150, height: 150, padding: "1.25rem", boxSizing: "border-box", margin: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                {uploading ? (
+                  <span className="animate-spin text-xl">⏳</span>
+                ) : (
+                  <>
+                    <span className="text-3xl">+</span>
+                    <span className="text-[10px] mt-2 uppercase font-black tracking-widest text-center">Upload Cover Image</span>
+                  </>
+                )}
+                <input type="file" className="hidden" accept="image/*" onChange={handleUpload} disabled={uploading} />
+              </label>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Section 4: Venue Specifications */}
+      <div className="admin-form-row-section">
+        <h3 className="admin-form-row-title">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Venue Address
+        </h3>
+
+        <div className="admin-field-row">
+          <div className="admin-field-group">
+            <label className="admin-field-label">Venue Name</label>
+            <input
+              type="text"
+              className="admin-input-base"
+              value={form.venueName}
+              onChange={e => set("venueName", e.target.value)}
+              placeholder="e.g. NSCI Dome, Taj Ballroom"
+            />
+          </div>
+          <div className="admin-field-group" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+            <div>
+              <label className="admin-field-label">City</label>
+              <input
+                type="text"
+                className="admin-input-base"
+                value={form.venueCity}
+                onChange={e => set("venueCity", e.target.value)}
+                placeholder="Mumbai"
+              />
+            </div>
+            <div>
+              <label className="admin-field-label">State</label>
+              <input
+                type="text"
+                className="admin-input-base"
+                value={form.venueState}
+                onChange={e => set("venueState", e.target.value)}
+                placeholder="Maharashtra"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="admin-field-group mt-6">
+          <label className="admin-field-label">Full Street Address</label>
+          <input
+            type="text"
+            className="admin-input-base"
+            value={form.venueAddress}
+            onChange={e => set("venueAddress", e.target.value)}
+            placeholder="e.g. Worli, Mumbai, Maharashtra 400018"
+          />
+        </div>
+      </div>
+
+      {/* Feature / Reg. Toggles */}
+      <div style={{ display: "flex", gap: "2.5rem", marginTop: "2.5rem", marginBottom: "2.5rem", flexWrap: "wrap" }}>
+        <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => set("featured", !form.featured)}>
+          <div className={`admin-checkbox ${form.featured ? "checked" : ""}`} style={{ flexShrink: 0 }}>
+            {form.featured && (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            )}
+          </div>
+          <span className="font-bold text-text text-sm">Feature this event on the Landing Page</span>
+        </div>
+
+        <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => set("registrationOpen", !form.registrationOpen)}>
+          <div className={`admin-checkbox ${form.registrationOpen ? "checked" : ""}`} style={{ flexShrink: 0 }}>
+            {form.registrationOpen && (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            )}
+          </div>
+          <span className="font-bold text-text text-sm">Keep Guest Registrations Open</span>
+        </div>
+      </div>
+
+      {/* Form Buttons */}
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: "1.5rem", paddingTop: "2rem", marginTop: "3.5rem", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+        <button type="button" onClick={() => router.back()} className="btn-outline px-10 py-3 rounded-xl text-sm">
+          Discard Changes
         </button>
-        <button type="button" className="btn-outline" onClick={() => router.back()}>Cancel</button>
+        <button type="submit" disabled={saving || uploading} className="btn-primary px-14 py-3 rounded-xl text-sm font-bold shadow-gold/20">
+          {saving ? "Saving Event…" : mode === "edit" ? "Save Event Changes" : "Create New Event"}
+        </button>
       </div>
-    </form>
+      </form>
+    </div>
   );
 }

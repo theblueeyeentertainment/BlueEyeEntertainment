@@ -2,6 +2,33 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API);
 
+// Base template layout for premium emails
+function getLuxuryTemplate(title: string, bodyContent: string) {
+  return `
+    <div style="font-family: 'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #07090c; color: #e5e7eb; padding: 50px 20px; line-height: 1.75; font-size: 15px;">
+      <div style="max-width: 580px; margin: 0 auto; background: #0f1218; border: 1px solid rgba(212, 160, 23, 0.25); border-radius: 20px; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.65);">
+        <!-- Luxury Branding Header -->
+        <div style="padding: 40px 40px 30px 40px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); background: linear-gradient(180deg, #131720 0%, #0f1218 100%);">
+          <span style="font-size: 2.4rem; font-weight: 900; letter-spacing: 0.25em; color: #d4a017; text-transform: uppercase; display: inline-block;">BlueEye</span>
+          <div style="font-size: 0.65rem; color: #9ca3af; letter-spacing: 0.45em; text-transform: uppercase; margin-top: 8px; font-weight: 700;">Exclusive Artists & Events</div>
+        </div>
+        
+        <!-- Elegant Body Content -->
+        <div style="padding: 40px 40px 30px 40px;">
+          <h2 style="font-size: 1.5rem; font-weight: 800; color: #d4a017; margin-top: 0; margin-bottom: 24px; letter-spacing: 0.02em;">${title}</h2>
+          ${bodyContent}
+        </div>
+        
+        <!-- Footer -->
+        <div style="padding: 30px 40px; background: #0b0d12; border-top: 1px solid rgba(255, 255, 255, 0.04); text-align: center; font-size: 0.8rem; color: #6b7280;">
+          <p style="margin: 0 0 8px 0; font-weight: 600;">This is an automated communication from the BlueEye Platform.</p>
+          <p style="margin: 0; font-size: 0.75rem;">© ${new Date().getFullYear()} BlueEye Entertainment. All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 export async function sendInquiryEmail(data: {
   artistName: string;
   clientName: string;
@@ -14,28 +41,52 @@ export async function sendInquiryEmail(data: {
   const toEmail = process.env.EMAIL_TO || "info@BlueEye.in";
 
   try {
+    const htmlContent = getLuxuryTemplate(
+      "New Artist Booking Inquiry",
+      `
+      <p style="margin: 0 0 20px 0;">You have received a new professional booking inquiry from the platform.</p>
+      
+      <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(212, 160, 23, 0.15); border-radius: 12px; padding: 24px; margin-bottom: 30px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; color: #9ca3af; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; width: 40%;">Target Artist</td>
+            <td style="padding: 8px 0; color: #ffffff; font-weight: 700;">${data.artistName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #9ca3af; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-top: 1px solid rgba(255,255,255,0.05);">Client Name</td>
+            <td style="padding: 8px 0; color: #ffffff; font-weight: 700; border-top: 1px solid rgba(255,255,255,0.05);">${data.clientName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #9ca3af; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-top: 1px solid rgba(255,255,255,0.05);">Email Address</td>
+            <td style="padding: 8px 0; color: #d4a017; font-weight: 600; border-top: 1px solid rgba(255,255,255,0.05);">${data.clientEmail}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #9ca3af; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-top: 1px solid rgba(255,255,255,0.05);">Contact Number</td>
+            <td style="padding: 8px 0; color: #ffffff; border-top: 1px solid rgba(255,255,255,0.05);">${data.clientPhone}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #9ca3af; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-top: 1px solid rgba(255,255,255,0.05);">Event Type</td>
+            <td style="padding: 8px 0; color: #ffffff; border-top: 1px solid rgba(255,255,255,0.05);">${data.eventType}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #9ca3af; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-top: 1px solid rgba(255,255,255,0.05);">Proposed Date</td>
+            <td style="padding: 8px 0; color: #ffffff; border-top: 1px solid rgba(255,255,255,0.05);">${data.eventDate || "TBA"}</td>
+          </tr>
+        </table>
+      </div>
+      
+      <p style="margin: 0 0 10px 0; color: #9ca3af; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Client Message</p>
+      <div style="background: rgba(212, 160, 23, 0.05); border-left: 3px solid #d4a017; padding: 20px; border-radius: 0 12px 12px 0; font-style: italic; color: #d1d5db; margin-bottom: 20px;">
+        "${data.message || "No custom message provided."}"
+      </div>
+      `
+    );
+
     const { data: resData, error } = await resend.emails.send({
-      from: "BlueEye <onboarding@resend.dev>", // Replace with verified domain in prod
+      from: "BlueEye <onboarding@resend.dev>",
       to: [toEmail],
-      subject: `New Inquiry for ${data.artistName} from ${data.clientName}`,
-      html: `
-        <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
-          <h2 style="color: #d4a017;">New Artist Inquiry</h2>
-          <p><strong>Artist:</strong> ${data.artistName}</p>
-          <hr />
-          <p><strong>Client Name:</strong> ${data.clientName}</p>
-          <p><strong>Email:</strong> ${data.clientEmail}</p>
-          <p><strong>Phone:</strong> ${data.clientPhone}</p>
-          <p><strong>Event Type:</strong> ${data.eventType}</p>
-          <p><strong>Event Date:</strong> ${data.eventDate || "Not specified"}</p>
-          <p><strong>Message:</strong></p>
-          <div style="background: #f9f9f9; padding: 1rem; border-radius: 5px;">
-            ${data.message || "No message provided."}
-          </div>
-          <br />
-          <p style="font-size: 0.8rem; color: #777;">This inquiry was sent from the BlueEye platform.</p>
-        </div>
-      `,
+      subject: `✦ New Artist Inquiry: ${data.artistName} from ${data.clientName}`,
+      html: htmlContent,
     });
 
     if (error) {
@@ -49,22 +100,29 @@ export async function sendInquiryEmail(data: {
     return { success: false, error: err };
   }
 }
+
 export async function sendVerificationEmail(email: string, code: string) {
   try {
+    const htmlContent = getLuxuryTemplate(
+      "Verify Your Account",
+      `
+      <p style="margin: 0 0 24px 0; color: #d1d5db; text-align: center;">Thank you for registering on BlueEye. Please use the verification code below to activate your account. This code is valid for 10 minutes.</p>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <div style="font-size: 2.8rem; font-weight: 800; color: #d4a017; letter-spacing: 0.4em; background: rgba(212,160,23,0.08); padding: 20px 10px; border-radius: 12px; border: 1px dashed rgba(212,160,23,0.4); display: inline-block; width: 80%; text-shadow: 0 0 10px rgba(212,160,23,0.2);">
+          ${code}
+        </div>
+      </div>
+      
+      <p style="margin: 30px 0 0 0; text-align: center; color: #9ca3af; font-size: 0.8rem;">If you did not initiate this request, please safely disregard this email.</p>
+      `
+    );
+
     const { data: resData, error } = await resend.emails.send({
       from: "BlueEye <onboarding@resend.dev>",
       to: [email],
-      subject: "Verify your BlueEye Account",
-      html: `
-        <div style="font-family: sans-serif; text-align: center; padding: 2rem; background: #0a0807; color: #fff;">
-          <h2 style="color: #d4a017;">Verify Your Account</h2>
-          <p>Thank you for joining BlueEye. Use the code below to verify your email address. This code will expire in 10 minutes.</p>
-          <div style="font-size: 2.5rem; font-weight: bold; color: #d4a017; margin: 2rem 0; letter-spacing: 0.5rem; background: rgba(212,160,23,0.1); padding: 1rem; border-radius: 10px; border: 1px dashed #d4a017;">
-            ${code}
-          </div>
-          <p style="color: #777; font-size: 0.8rem;">If you did not request this, please ignore this email.</p>
-        </div>
-      `,
+      subject: "✦ Verify your BlueEye Account",
+      html: htmlContent,
     });
     if (error) throw error;
     return { success: true, data: resData };
@@ -76,20 +134,26 @@ export async function sendVerificationEmail(email: string, code: string) {
 
 export async function sendResetPasswordEmail(email: string, otp: string) {
   try {
+    const htmlContent = getLuxuryTemplate(
+      "Reset Your Password",
+      `
+      <p style="margin: 0 0 24px 0; color: #d1d5db; text-align: center;">We received a request to reset your password. Use the verification OTP below to finalize the process. This code will expire in 15 minutes.</p>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <div style="font-size: 2.8rem; font-weight: 800; color: #d4a017; letter-spacing: 0.4em; background: rgba(212,160,23,0.08); padding: 20px 10px; border-radius: 12px; border: 1px dashed rgba(212,160,23,0.4); display: inline-block; width: 80%; text-shadow: 0 0 10px rgba(212,160,23,0.2);">
+          ${otp}
+        </div>
+      </div>
+      
+      <p style="margin: 30px 0 0 0; text-align: center; color: #9ca3af; font-size: 0.8rem;">If you did not make this request, you can safely ignore this mail; your credentials remain secure.</p>
+      `
+    );
+
     const { data: resData, error } = await resend.emails.send({
       from: "BlueEye <onboarding@resend.dev>",
       to: [email],
-      subject: "Your Password Reset OTP",
-      html: `
-        <div style="font-family: sans-serif; text-align: center; padding: 2rem; background: #0a0807; color: #fff;">
-          <h2 style="color: #d4a017;">Reset Your Password</h2>
-          <p>We received a request to reset your password. Use the 6-digit OTP below to proceed. This code will expire in 15 minutes.</p>
-          <div style="font-size: 2.5rem; font-weight: bold; color: #d4a017; margin: 2rem 0; letter-spacing: 0.5rem; background: rgba(212,160,23,0.1); padding: 1rem; border-radius: 10px; border: 1px dashed #d4a017;">
-            ${otp}
-          </div>
-          <p style="color: #777; font-size: 0.8rem;">If you did not request this, please ignore this email.</p>
-        </div>
-      `,
+      subject: "✦ Your Password Reset OTP",
+      html: htmlContent,
     });
     if (error) throw error;
     return { success: true, data: resData };
@@ -99,8 +163,6 @@ export async function sendResetPasswordEmail(email: string, otp: string) {
   }
 }
 
-// ── Event notification emails ─────────────────────────────────────────────────
-
 export async function sendEventRegistrationConfirmation(data: {
   guestName: string;
   guestEmail: string;
@@ -109,22 +171,47 @@ export async function sendEventRegistrationConfirmation(data: {
   venue: string;
 }) {
   try {
+    const dateFormatted = new Date(data.startDate).toLocaleDateString("en-IN", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const htmlContent = getLuxuryTemplate(
+      "Registration Received ✦",
+      `
+      <p style="margin: 0 0 20px 0;">Dear <strong>${data.guestName}</strong>,</p>
+      <p style="margin: 0 0 24px 0; color: #d1d5db;">Thank you for your RSVP to <strong>${data.eventTitle}</strong>. Your registration is currently <strong>pending review</strong>. We will notify you via email and messaging once your booking is confirmed.</p>
+      
+      <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(212, 160, 23, 0.15); border-radius: 12px; padding: 24px; margin-bottom: 20px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; color: #9ca3af; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; width: 30%;">Event</td>
+            <td style="padding: 8px 0; color: #ffffff; font-weight: 700;">${data.eventTitle}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #9ca3af; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-top: 1px solid rgba(255,255,255,0.05);">Date & Time</td>
+            <td style="padding: 8px 0; color: #ffffff; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem;">${dateFormatted}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #9ca3af; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-top: 1px solid rgba(255,255,255,0.05);">Location</td>
+            <td style="padding: 8px 0; color: #ffffff; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem;">${data.venue}</td>
+          </tr>
+        </table>
+      </div>
+      
+      <p style="margin: 0; color: #9ca3af; font-size: 0.85rem; line-height: 1.6;">We look forward to hosting you soon.</p>
+      `
+    );
+
     const { error } = await resend.emails.send({
       from: "BlueEye <onboarding@resend.dev>",
       to: [data.guestEmail],
-      subject: `Your registration for ${data.eventTitle} is received`,
-      html: `
-        <div style="font-family:sans-serif;line-height:1.6;color:#333;max-width:560px;margin:0 auto">
-          <h2 style="color:#d4a017">Registration Received ✦</h2>
-          <p>Hi <strong>${data.guestName}</strong>,</p>
-          <p>Thank you for registering for <strong>${data.eventTitle}</strong>. Your request is <strong>pending review</strong>. We'll notify you once confirmed.</p>
-          <table style="width:100%;border-collapse:collapse;margin:1rem 0">
-            <tr><td style="padding:6px 0;color:#777">Event</td><td><strong>${data.eventTitle}</strong></td></tr>
-            <tr><td style="padding:6px 0;color:#777">Date</td><td>${data.startDate}</td></tr>
-            <tr><td style="padding:6px 0;color:#777">Venue</td><td>${data.venue}</td></tr>
-          </table>
-          <p style="font-size:0.85rem;color:#777">— BlueEye Events Team</p>
-        </div>`,
+      subject: `✦ RSVP Received: ${data.eventTitle}`,
+      html: htmlContent,
     });
     if (error) throw error;
     return { success: true };
@@ -142,22 +229,51 @@ export async function sendEventRegistrationApproved(data: {
   venue: string;
 }) {
   try {
+    const dateFormatted = new Date(data.startDate).toLocaleDateString("en-IN", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const htmlContent = getLuxuryTemplate(
+      "Booking Confirmed 🎉",
+      `
+      <p style="margin: 0 0 20px 0;">Dear <strong>${data.guestName}</strong>,</p>
+      <p style="margin: 0 0 24px 0; color: #d1d5db;">We are absolutely thrilled to confirm your registration for <strong>${data.eventTitle}</strong>. Your ticket is officially <strong style="color: #22c55e;">approved</strong>!</p>
+      
+      <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(34,197,94,0.05);">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; color: #9ca3af; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; width: 30%;">Event</td>
+            <td style="padding: 8px 0; color: #ffffff; font-weight: 700;">${data.eventTitle}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #9ca3af; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-top: 1px solid rgba(255,255,255,0.05);">Date & Time</td>
+            <td style="padding: 8px 0; color: #ffffff; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem;">${dateFormatted}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #9ca3af; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-top: 1px solid rgba(255,255,255,0.05);">Location</td>
+            <td style="padding: 8px 0; color: #ffffff; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem;">${data.venue}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #9ca3af; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-top: 1px solid rgba(255,255,255,0.05);">Status</td>
+            <td style="padding: 8px 0; color: #22c55e; border-top: 1px solid rgba(255,255,255,0.05); font-weight: 800; font-size: 0.9rem;">CONFIRMED ENTRY</td>
+          </tr>
+        </table>
+      </div>
+      
+      <p style="margin: 0; color: #d4a017; font-weight: 700; font-size: 0.95rem; text-align: center;">Please keep this email handy for entrance validation at the venue gate.</p>
+      `
+    );
+
     const { error } = await resend.emails.send({
       from: "BlueEye <onboarding@resend.dev>",
       to: [data.guestEmail],
-      subject: `You're confirmed for ${data.eventTitle}! 🎉`,
-      html: `
-        <div style="font-family:sans-serif;line-height:1.6;color:#333;max-width:560px;margin:0 auto">
-          <h2 style="color:#d4a017">You're In! 🎉</h2>
-          <p>Hi <strong>${data.guestName}</strong>,</p>
-          <p>Your registration for <strong>${data.eventTitle}</strong> has been <strong style="color:#16a34a">approved</strong>. We look forward to seeing you!</p>
-          <table style="width:100%;border-collapse:collapse;margin:1rem 0">
-            <tr><td style="padding:6px 0;color:#777">Event</td><td><strong>${data.eventTitle}</strong></td></tr>
-            <tr><td style="padding:6px 0;color:#777">Date</td><td>${data.startDate}</td></tr>
-            <tr><td style="padding:6px 0;color:#777">Venue</td><td>${data.venue}</td></tr>
-          </table>
-          <p style="font-size:0.85rem;color:#777">— BlueEye Events Team</p>
-        </div>`,
+      subject: `🎉 Ticket Confirmed: ${data.eventTitle}!`,
+      html: htmlContent,
     });
     if (error) throw error;
     return { success: true };
@@ -173,17 +289,25 @@ export async function sendEventRegistrationRejected(data: {
   eventTitle: string;
 }) {
   try {
+    const htmlContent = getLuxuryTemplate(
+      "Registration Status Update",
+      `
+      <p style="margin: 0 0 20px 0;">Dear <strong>${data.guestName}</strong>,</p>
+      <p style="margin: 0 0 24px 0; color: #d1d5db; line-height: 1.8;">Thank you for your interest in attending <strong>${data.eventTitle}</strong>. Due to exceptionally high demand and venue capacity constraints, we regret to inform you that we are unable to approve your booking request at this time.</p>
+      
+      <div style="background: rgba(255, 71, 87, 0.05); border-left: 3px solid #ff4757; padding: 20px; border-radius: 0 12px 12px 0; color: #e5e7eb; margin-bottom: 24px;">
+        We hope to accommodate you at one of our future live concerts or exclusive show lineups.
+      </div>
+      
+      <p style="margin: 0; color: #9ca3af; font-size: 0.85rem;">Feel free to browse other upcoming events on the BlueEye portal.</p>
+      `
+    );
+
     const { error } = await resend.emails.send({
       from: "BlueEye <onboarding@resend.dev>",
       to: [data.guestEmail],
-      subject: `Update on your registration for ${data.eventTitle}`,
-      html: `
-        <div style="font-family:sans-serif;line-height:1.6;color:#333;max-width:560px;margin:0 auto">
-          <h2 style="color:#d4a017">Registration Update</h2>
-          <p>Hi <strong>${data.guestName}</strong>,</p>
-          <p>Unfortunately we couldn't accommodate your request for <strong>${data.eventTitle}</strong> this time. We hope to see you at a future event.</p>
-          <p style="font-size:0.85rem;color:#777">— BlueEye Events Team</p>
-        </div>`,
+      subject: `Update on your RSVP for ${data.eventTitle}`,
+      html: htmlContent,
     });
     if (error) throw error;
     return { success: true };
