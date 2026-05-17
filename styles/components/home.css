@@ -771,6 +771,26 @@
   -webkit-mask-image: linear-gradient(to right, transparent, #000 20%, #000 80%, transparent);
 }
 
+/* .marquee-wrap::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--saffron), transparent);
+} */
+
+/* .marquee-wrap::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--saffron), transparent);
+} */
+
 .marquee-track {
   display: flex;
   gap: 3rem;
@@ -1133,7 +1153,7 @@ section {
   overflow: hidden;
 }
 
-#how::before {
+/* #how::before {
   content: "";
   position: absolute;
   top: 0;
@@ -1151,7 +1171,7 @@ section {
   right: 0;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--gold), var(--saffron), transparent);
-}
+} */
 
 .how-content {
   display: flex;
@@ -1240,9 +1260,9 @@ section {
 }
 
 /* ── STATS ────────────────────────────────────────── */
-#stats {
+/* #stats {
   background: linear-gradient(135deg, var(--bg) 0%, #0a111a 50%, var(--bg) 100%);
-}
+} */
 
 .stats-grid {
   display: grid;
@@ -1389,16 +1409,18 @@ section {
 
 /* ── CTA BANNER ───────────────────────────────────── */
 #cta-banner {
-  background: var(--bg2);
+  background: var(--bg1);
   padding: clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2.5rem);
 }
+
 
 .cta-inner {
   max-width: 1400px;
   margin: 0 auto;
-  background: linear-gradient(135deg, #1a1200, var(--bg3));
-  border: 1px solid rgba(212, 160, 23, 0.2);
-  border-radius: 24px;
+  backdrop-filter: blur(20px);
+  background: #ffffff07;
+  border: 1px solid var(--gold);
+  border-radius:1rem;
   padding: clamp(2.5rem, 5vw, 4rem);
   display: flex;
   align-items: center;
@@ -1409,22 +1431,25 @@ section {
   overflow: hidden;
 }
 
-.cta-inner::before {
+/* .cta-inner::before {
   content: "";
   position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse 60% 60% at 80% 50%, rgba(232, 103, 26, 0.07) 0%, transparent 70%);
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--saffron), transparent);
 }
 
 .cta-inner::after {
   content: "";
   position: absolute;
-  top: -2px;
-  left: 10%;
-  right: 10%;
-  height: 2px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
   background: linear-gradient(90deg, transparent, var(--gold), var(--saffron), transparent);
-}
+} */
 
 .cta-text {
   max-width: 500px;
@@ -1656,6 +1681,26 @@ section {
   /* Gorgeous deep fading mask on both sides! */
   mask-image: linear-gradient(to right, transparent, #000 20%, #000 80%, transparent);
   -webkit-mask-image: linear-gradient(to right, transparent, #000 20%, #000 80%, transparent);
+}
+
+.genre-divider-marquee::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--saffron), transparent);
+}
+
+.genre-divider-marquee::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--saffron), transparent);
 }
 
 .divider-marquee-track {

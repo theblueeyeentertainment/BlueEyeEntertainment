@@ -12,7 +12,14 @@ const UserSchema = new mongoose.Schema({
   verificationCodeExpires: { type: Date },
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date },
+  address: { type: String },
+  contactDetails: { type: String },
   favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Artist" }]
 }, { timestamps: true });
 
-export default mongoose.models.User || mongoose.model("User", UserSchema);
+// Clear the cached model if it exists to force re-compilation with the updated schema
+if (mongoose.models && mongoose.models.User) {
+  delete mongoose.models.User;
+}
+
+export default mongoose.model("User", UserSchema);

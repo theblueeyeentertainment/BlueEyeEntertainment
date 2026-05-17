@@ -180,7 +180,7 @@ function LoginPageContent() {
   };
 
   return (
-    <main className="section-inner" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--hdr-h) 1rem' }}>
+    <main className="section-inner" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'calc(var(--hdr-h) + 2rem) 1rem 2rem 1rem' }}>
       <div style={{ width: '100%', maxWidth: '450px', background: 'var(--surface)', padding: '2.5rem', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}>
         
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>

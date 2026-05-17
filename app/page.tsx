@@ -1,7 +1,7 @@
 import HomeDynamicContent from "@/components/home/HomeDynamicContent";
 import StatsBar from "@/components/home/StatsBar";
-
-
+import TestimonialsMarquee from "@/components/home/TestimonialsMarquee";
+import PlasmaWave from "@/components/react-bits/PlasmaWave";
 
 export default async function HomePage() {
   return (
@@ -77,29 +77,27 @@ export default async function HomePage() {
             <h2 className="section-title" style={{ textAlign: 'center' }}>What They <span>Say About Us</span></h2>
           </div>
 
-          <div className="testimonials-grid">
-            <div className="testimonial-card reveal visible">
-              <div className="quote-mark">"</div>
-              <div className="stars">
-                <span className="star">★</span><span className="star">★</span><span className="star">★</span><span className="star">★</span><span className="star">★</span>
-              </div>
-              <p className="testimonial-text">"Booking Arijit Singh for our wedding felt impossible until we found TaranumTalent. The team handled everything — from the rider to sound setup. It was an absolutely magical night."</p>
-              <div className="testimonial-author">
-                <div className="author-avatar">PS</div>
-                <div>
-                  <div className="author-name">Priya Sharma</div>
-                  <div className="author-role">Wedding Client, Delhi</div>
-                </div>
-              </div>
-            </div>
-            {/* ... other testimonials omitted for brevity ... */}
+          <div style={{ overflow: 'hidden', width: '100%', position: 'relative' }}>
+            <TestimonialsMarquee />
           </div>
         </div>
       </section>
 
       {/* CTA Banner */}
-      <section id="cta-banner">
-        <div className="cta-inner reveal visible">
+      <section id="cta-banner" style={{ position: 'relative' }}>
+        <div style={{ position: 'absolute', inset: 0, zIndex: 0 ,opacity:0.5}}>
+          <PlasmaWave
+            colors={['#00d2ff', '#0055ff']}
+            speed1={0.2}
+            speed2={0.2}
+            focalLength={2}
+            bend1={1}
+            bend2={0.5}
+            dir2={1}
+            rotationDeg={0}
+          />
+        </div>
+        <div className="cta-inner reveal visible" style={{ zIndex: 1 }}>
           <div className="cta-text">
             <span className="ornament">✦ ✦ ✦</span>
             <h2>Ready to Make Your <em style={{ fontStyle: 'italic', background: 'linear-gradient(135deg,var(--gold),var(--saffron))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Event Unforgettable?</em></h2>

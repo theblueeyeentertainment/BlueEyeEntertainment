@@ -69,7 +69,7 @@ export const authOptions: NextAuthOptions = {
           // Create new user for Google login
           await User.create({
             name: user.name,
-            email: user.email,
+            email: user.email || "",
             image: user.image,
             role: "user",
             isVerified: true // Google accounts are verified
