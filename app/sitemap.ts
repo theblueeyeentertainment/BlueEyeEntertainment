@@ -3,17 +3,27 @@ import { getArtists } from '@/lib/services/artistService';
 import { siteConfig } from '@/lib/config/site';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  if (!siteConfig.url) {
+    return [];
+  }
+  
   const baseUrl = siteConfig.url;
   
   // Fetch artists for dynamic routes
-  const { artists } = await getArtists({ limit: 1000 }) as { artists: any[] };
-  
-  const artistUrls = artists.map((artist) => ({
-    url: `${baseUrl}/artists/${artist.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }));
+  let artistUrls: any[] = [];
+  try {
+    const response = await getArtists({ limit: 1000 }) as { artists: any[] };
+    const artists = response?.artists || [];
+    
+    artistUrls = artists.map((artist) => ({
+      url: `${baseUrl}/artists/${artist.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }));
+  } catch (error) {
+    console.error("Failed to fetch artists for sitemap:", error);
+  }
 
   return [
     {

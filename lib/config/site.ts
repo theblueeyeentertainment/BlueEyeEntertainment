@@ -1,4 +1,4 @@
-const brandName = process.env.NEXT_PUBLIC_BRAND_NAME || "Blue Eye Entertainment";
+const brandName = process.env.NEXT_PUBLIC_BRAND_NAME;
 
 export interface SiteConfig {
   name: string;
@@ -22,10 +22,10 @@ export interface SiteConfig {
 }
 
 export const siteConfig: SiteConfig = {
-  name: brandName,
-  shortName: process.env.NEXT_PUBLIC_BRAND_SHORT_NAME || brandName,
-  description: `Book India's Top Artists - Singers, DJs, Comedians & more for your events via ${brandName}. Premium entertainment at your fingertips.`,
-  longDescription: `${brandName} is India's leading platform for booking premium entertainment. From Bollywood singers and high-energy DJs to corporate comedians and live bands, we provide high-quality artist management services for weddings, corporate events, and private parties.`,
+  name: brandName || "Blue Eye Entertainment",
+  shortName: process.env.NEXT_PUBLIC_BRAND_SHORT_NAME || brandName || "BlueEye",
+  description: `Book India's Top Artists - Singers, DJs, Comedians & more for your events via ${brandName || "Blue Eye Entertainment"}. Premium entertainment at your fingertips.`,
+  longDescription: `${brandName || "Blue Eye Entertainment"} is India's leading platform for booking premium entertainment. From Bollywood singers and high-energy DJs to corporate comedians and live bands, we provide high-quality artist management services for weddings, corporate events, and private parties.`,
   url: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
   ogImage: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/og.jpg`,
   author: `${brandName} Team`,
