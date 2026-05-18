@@ -4,6 +4,7 @@ import { connectToDatabase } from "@/lib/db/connect";
 import User from "@/lib/models/User";
 import { sendVerificationEmail } from "@/lib/utils/email";
 import { apiSuccess, apiError } from "@/lib/utils/apiResponse";
+import { setCache } from "@/lib/db/redis";
 
 export async function POST(request: Request) {
   try {
@@ -21,7 +22,11 @@ export async function POST(request: Request) {
     });
 
     if (existingUser) {
-      return apiError("User with this email or username already exists", 400);
+      if (existingUser.isVerified) {
+        return apiError("User with this email or username already exists", 400);
+      }
+      // If the existing user is unverified, delete it to prevent blocking
+      await User.deleteOne({ _id: existingUser._id });
     }
 
     // Generate 6-digit code
@@ -30,20 +35,39 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await User.create({
+    const pendingUserData = {
       name,
       email: email.toLowerCase(),
       username: username.toLowerCase(),
       password: hashedPassword,
       verificationCode,
-      verificationCodeExpires,
-      isVerified: false,
-      role: "user"
-    });
+      verificationCodeExpires
+    };
 
-    await sendVerificationEmail(newUser.email, verificationCode);
+    // Save to Redis for 10 minutes
+    const redisKey = `pending-user:${email.toLowerCase()}`;
+    const cached = await setCache(redisKey, pendingUserData, 600);
 
-    return apiSuccess({ email: newUser.email }, "Verification code sent to your email", 201);
+    if (!cached) {
+      // Fallback to unverified MongoDB user if Redis cache is not available
+      const newUser = await User.create({
+        name,
+        email: email.toLowerCase(),
+        username: username.toLowerCase(),
+        password: hashedPassword,
+        verificationCode,
+        verificationCodeExpires,
+        isVerified: false,
+        role: "user"
+      });
+
+      await sendVerificationEmail(newUser.email, verificationCode);
+      return apiSuccess({ email: newUser.email }, "Verification code sent to your email (Fallback Mode)", 201);
+    }
+
+    await sendVerificationEmail(pendingUserData.email, verificationCode);
+
+    return apiSuccess({ email: pendingUserData.email }, "Verification code sent to your email", 201);
   } catch (error: any) {
     return apiError(error.message || "Registration failed", 500);
   }

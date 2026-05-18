@@ -2,6 +2,20 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API);
 
+// Helper to prevent 403 sandbox error when using Resend's free/onboarding tier
+function getRecipientEmail(originalEmail: string): string {
+  const allowedEmail = process.env.EMAIL_TO || "sayantanbharati611@gmail.com";
+  if (originalEmail.toLowerCase().trim() !== allowedEmail.toLowerCase().trim()) {
+    console.log(`\n==================================================`);
+    console.log(`[Resend Sandbox Bypass] Redirecting email:`);
+    console.log(`- Original Recipient: ${originalEmail}`);
+    console.log(`- Redirected To: ${allowedEmail}`);
+    console.log(`==================================================\n`);
+    return allowedEmail;
+  }
+  return originalEmail;
+}
+
 // Base template layout for premium emails
 function getLuxuryTemplate(title: string, bodyContent: string) {
   return `
@@ -118,9 +132,14 @@ export async function sendVerificationEmail(email: string, code: string) {
       `
     );
 
+    const recipient = getRecipientEmail(email);
+    console.log(`\n🔑 [Verification Code Bypass]`);
+    console.log(`- Original Email: ${email}`);
+    console.log(`- Code: ${code}\n`);
+
     const { data: resData, error } = await resend.emails.send({
       from: "BlueEye <onboarding@resend.dev>",
-      to: [email],
+      to: [recipient],
       subject: "✦ Verify your BlueEye Account",
       html: htmlContent,
     });
@@ -149,9 +168,14 @@ export async function sendResetPasswordEmail(email: string, otp: string) {
       `
     );
 
+    const recipient = getRecipientEmail(email);
+    console.log(`\n🔑 [Password Reset OTP Bypass]`);
+    console.log(`- Original Email: ${email}`);
+    console.log(`- OTP: ${otp}\n`);
+
     const { data: resData, error } = await resend.emails.send({
       from: "BlueEye <onboarding@resend.dev>",
-      to: [email],
+      to: [recipient],
       subject: "✦ Your Password Reset OTP",
       html: htmlContent,
     });
@@ -207,9 +231,10 @@ export async function sendEventRegistrationConfirmation(data: {
       `
     );
 
+    const recipient = getRecipientEmail(data.guestEmail);
     const { error } = await resend.emails.send({
       from: "BlueEye <onboarding@resend.dev>",
-      to: [data.guestEmail],
+      to: [recipient],
       subject: `✦ RSVP Received: ${data.eventTitle}`,
       html: htmlContent,
     });
@@ -269,9 +294,10 @@ export async function sendEventRegistrationApproved(data: {
       `
     );
 
+    const recipient = getRecipientEmail(data.guestEmail);
     const { error } = await resend.emails.send({
       from: "BlueEye <onboarding@resend.dev>",
-      to: [data.guestEmail],
+      to: [recipient],
       subject: `🎉 Ticket Confirmed: ${data.eventTitle}!`,
       html: htmlContent,
     });
@@ -303,9 +329,10 @@ export async function sendEventRegistrationRejected(data: {
       `
     );
 
+    const recipient = getRecipientEmail(data.guestEmail);
     const { error } = await resend.emails.send({
       from: "BlueEye <onboarding@resend.dev>",
-      to: [data.guestEmail],
+      to: [recipient],
       subject: `Update on your RSVP for ${data.eventTitle}`,
       html: htmlContent,
     });
