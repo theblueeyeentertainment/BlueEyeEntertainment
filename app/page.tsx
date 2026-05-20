@@ -7,15 +7,13 @@ import { siteConfig } from "@/lib/config/site";
 
 export const metadata: Metadata = {
   title: "Book Celebrity Artists in India | Blue Eye Entertainment",
-  description:
-    "Book singers, DJs, comedians, Bollywood celebrities and live performers across India for weddings, corporate events and college fests. Affordable artist booking at Blue Eye Entertainment.",
+  description: siteConfig.description,
   alternates: {
     canonical: siteConfig.url,
   },
   openGraph: {
     title: "Book Celebrity Artists in India | Blue Eye Entertainment",
-    description:
-      "Book singers, DJs, comedians, Bollywood celebrities and live performers across India for weddings, corporate events and college fests.",
+    description: siteConfig.description,
     url: siteConfig.url,
     siteName: siteConfig.name,
     images: [{ url: siteConfig.ogImage, width: 1200, height: 630, alt: "Blue Eye Entertainment" }],
