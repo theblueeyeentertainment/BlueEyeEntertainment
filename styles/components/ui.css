@@ -82,9 +82,17 @@
   border-radius: 10px;
 }
 .btn-xs {
-  padding: 0.4rem 0.8rem;
+  padding: 0.2rem 0.8rem;
   font-size: 0.75rem;
   border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .btn-xs {
+    padding: 0.1rem 0.5rem;
+    font-size: 0.6rem;
+    border-radius: 8px;
+  }
 }
 .genre-tag {
   padding: 0.4rem 0.8rem;
