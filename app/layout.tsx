@@ -74,9 +74,9 @@ export const metadata: Metadata = {
   },
   manifest: `/site.webmanifest`,
   verification: {
-    google: "w4DR7X3DtSynHh1t-DNvG4mC8xzdlLqhMoDC9Sxn3TM",
+    google: "x_yXEAe5Q1UyKyyYr_emEEWA8JLiMoz5MU_eyVZ36CA",
     other: {
-      "msvalidate.01": "5E158C5F0B1987A60A93EF5E44F6C4C9",
+      "msvalidate.01": "9083C72742373263D1A69852EEFA950C",
     },
   },
   robots: {
