@@ -23,7 +23,7 @@ export interface SiteConfig {
 
 export const siteConfig: SiteConfig = {
   name: brandName || "Blue Eye Entertainment",
-  shortName: process.env.NEXT_PUBLIC_BRAND_SHORT_NAME || brandName || "BlueEye",
+  shortName: process.env.NEXT_PUBLIC_BRAND_SHORT_NAME || brandName || "Blue Eye Entertainment",
   description: `Book India's Top Artists - Singers, DJs, Comedians & more for your events via ${brandName || "Blue Eye Entertainment"}. Premium entertainment at your fingertips.`,
   longDescription: `${brandName || "Blue Eye Entertainment"} is India's leading platform for booking premium entertainment. From Bollywood singers and high-energy DJs to corporate comedians and live bands, we provide high-quality artist management services for weddings, corporate events, and private parties.`,
   url: process.env.NEXT_PUBLIC_BASE_URL || "https://blueeyeentertainment.in",
