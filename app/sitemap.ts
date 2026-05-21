@@ -1,10 +1,15 @@
 import { MetadataRoute } from "next";
-import { siteConfig } from "@/lib/config/site";
 import { siteUrl } from "@/lib/seo/metadata";
+
+export const revalidate = 3600;
 
 function entry(
   path: string,
-  options: { priority: number; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; lastModified?: Date }
+  options: {
+    priority: number;
+    changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"];
+    lastModified?: Date;
+  }
 ): MetadataRoute.Sitemap[number] {
   return {
     url: siteUrl(path),
@@ -32,19 +37,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let eventEntries: MetadataRoute.Sitemap = [];
 
   try {
-    const { getArtists } = await import("@/lib/services/artistService");
-    const { getDistinctCategories, getDistinctCities } = await import("@/lib/services/searchService");
-    const { getEvents } = await import("@/lib/services/eventService");
+    const { getArtistsForSitemap } = await import("@/lib/services/artistService");
+    const { getDistinctCategories, getDistinctCities } = await import(
+      "@/lib/services/searchService"
+    );
+    const { getEventsForSitemap } = await import("@/lib/services/eventService");
 
-    const [artistResponse, categories, cities, eventResponse] = await Promise.all([
-      getArtists({ limit: 1000 }),
+    type SitemapEntry = { slug: string; updatedAt?: string };
+
+    const [artists, categories, cities, events] = await Promise.all([
+      getArtistsForSitemap().catch(() => [] as SitemapEntry[]),
       getDistinctCategories().catch(() => [] as string[]),
       getDistinctCities().catch(() => [] as string[]),
-      getEvents({ limit: 500 }).catch(() => ({ events: [] as { slug: string; updatedAt?: string; status?: string }[] })),
+      getEventsForSitemap().catch(() => [] as SitemapEntry[]),
     ]);
 
-    const artists = (artistResponse as { artists?: { slug: string; updatedAt?: string }[] })?.artists ?? [];
-    artistEntries = artists.map((artist) =>
+    artistEntries = artists.map((artist: SitemapEntry) =>
       entry(`/artists/${artist.slug}`, {
         priority: 0.8,
         changeFrequency: "weekly",
@@ -52,9 +60,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
     );
 
-    categoryEntries = (categories as string[])
+    categoryEntries = categories
       .filter(Boolean)
-      .map((category) =>
+      .map((category: string) =>
         entry(`/category/${encodeURIComponent(category)}`, {
           priority: 0.75,
           changeFrequency: "weekly",
@@ -62,9 +70,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         })
       );
 
-    cityEntries = (cities as string[])
+    cityEntries = cities
       .filter(Boolean)
-      .map((city) =>
+      .map((city: string) =>
         entry(`/city/${encodeURIComponent(city)}`, {
           priority: 0.75,
           changeFrequency: "weekly",
@@ -72,19 +80,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         })
       );
 
-    const events = (eventResponse as { events?: { slug: string; updatedAt?: string; status?: string }[] })?.events ?? [];
-    eventEntries = events
-      .filter((event) => event.status !== "Cancelled")
-      .map((event) =>
-        entry(`/events/${event.slug}`, {
-          priority: 0.8,
-          changeFrequency: "weekly",
-          lastModified: event.updatedAt ? new Date(event.updatedAt) : now,
-        })
-      );
+    eventEntries = events.map((event: SitemapEntry) =>
+      entry(`/events/${event.slug}`, {
+        priority: 0.8,
+        changeFrequency: "weekly",
+        lastModified: event.updatedAt ? new Date(event.updatedAt) : now,
+      })
+    );
   } catch (error) {
     console.error("Sitemap: failed to fetch dynamic routes:", error);
   }
 
-  return [...staticEntries, ...categoryEntries, ...cityEntries, ...artistEntries, ...eventEntries];
+  return [
+    ...staticEntries,
+    ...categoryEntries,
+    ...cityEntries,
+    ...artistEntries,
+    ...eventEntries,
+  ];
 }

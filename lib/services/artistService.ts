@@ -61,6 +61,16 @@ export async function getArtists(params: { category?: string; city?: string; pag
   }));
 }
 
+/** Lightweight query for sitemap generation (not capped at page size 24). */
+export async function getArtistsForSitemap(max = 5000) {
+  await connectToDatabase();
+  const artists = await Artist.find({}, { slug: 1, updatedAt: 1 })
+    .sort({ updatedAt: -1 })
+    .limit(max)
+    .lean();
+  return JSON.parse(JSON.stringify(artists)) as { slug: string; updatedAt?: string }[];
+}
+
 export async function getArtistBySlug(slug: string) {
   await connectToDatabase();
   const artist = await Artist.findOne({ slug }).lean();

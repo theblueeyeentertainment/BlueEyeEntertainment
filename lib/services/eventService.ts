@@ -34,6 +34,19 @@ export async function getEvents(params: {
   }));
 }
 
+/** Lightweight query for sitemap generation (not capped at page size 24). */
+export async function getEventsForSitemap(max = 500) {
+  await connectToDatabase();
+  const events = await Event.find(
+    { status: { $ne: "Cancelled" } },
+    { slug: 1, updatedAt: 1 }
+  )
+    .sort({ startDate: 1, updatedAt: -1 })
+    .limit(max)
+    .lean();
+  return JSON.parse(JSON.stringify(events)) as { slug: string; updatedAt?: string }[];
+}
+
 export async function getEventBySlug(slug: string) {
   await connectToDatabase();
   const event = await Event.findOne({ slug })
