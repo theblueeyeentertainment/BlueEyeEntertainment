@@ -1,13 +1,16 @@
 import { getEvents, getDistinctEventCategories } from "@/lib/services/eventService";
 import EventCard from "@/components/events/EventCard";
 import Link from "next/link";
+import { siteConfig } from "@/lib/config/site";
+import { pageMetadata } from "@/lib/seo/metadata";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Events | BlueEye",
-  description: "Browse upcoming live events, concerts, and shows managed by BlueEye.",
-};
+export const metadata = pageMetadata({
+  title: "Events & Live Shows",
+  description: `Browse upcoming live events, concerts, and shows managed by ${siteConfig.name}.`,
+  path: "/events",
+});
 
 export default async function EventsPage({
   searchParams,

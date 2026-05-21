@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getArtists } from "@/lib/services/artistService";
 export const dynamic = "force-dynamic";
 
@@ -5,6 +6,22 @@ import { getUserFavorites } from "@/lib/services/userService";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/authOptions";
 import ArtistCard from "@/components/ui/ArtistCard";
+import { siteConfig } from "@/lib/config/site";
+import { pageMetadata } from "@/lib/seo/metadata";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ city: string }>;
+}): Promise<Metadata> {
+  const { city } = await params;
+  const decodedCity = decodeURIComponent(city);
+  return pageMetadata({
+    title: `Artists in ${decodedCity}`,
+    description: `Find and book performers available in ${decodedCity} for weddings, corporate events, and private parties on ${siteConfig.name}.`,
+    path: `/city/${city}`,
+  });
+}
 
 export default async function CityArtistsPage({ params, searchParams }: { params: Promise<{ city: string }>, searchParams: Promise<{ q?: string, category?: string }> }) {
   const [{ city }, sParams, session] = await Promise.all([
@@ -28,7 +45,7 @@ export default async function CityArtistsPage({ params, searchParams }: { params
       <div className="artists-header">
         <div>
           <div className="section-label">Location</div>
-          <h2 className="section-title">Artists in <span>{decodedCity}</span></h2>
+          <h1 className="section-title">Artists in <span>{decodedCity}</span></h1>
           <p className="section-desc">Showing {artists.length} performers available in this city.</p>
         </div>
       </div>

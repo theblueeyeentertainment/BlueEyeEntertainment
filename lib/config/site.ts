@@ -37,7 +37,7 @@ export const siteConfig: SiteConfig = {
     "BlueEyeEntertainment",
     "Blue Eye",
     "BlueEye",
-    "atrist booking",
+    "artist booking",
     "artist booking website",
     "cheap artist booking",
     "affordable artist booking india",

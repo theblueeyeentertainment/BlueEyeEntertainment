@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { siteConfig } from "@/lib/config/site";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata = {
-  title: `Contact Us | ${siteConfig.name}`,
+export const metadata = pageMetadata({
+  title: "Contact Us",
   description: `Get in touch with the team at ${siteConfig.name}. We are here to help you with artist booking and event entertainment requirements.`,
-};
+  path: "/contact",
+});
 
 export default function ContactPage() {
   const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "contact@BlueEye.com";

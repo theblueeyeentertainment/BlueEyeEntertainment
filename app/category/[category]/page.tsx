@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getArtists } from "@/lib/services/artistService";
 export const dynamic = "force-dynamic";
 
@@ -7,7 +8,22 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/authOptions";
 import ArtistCard from "@/components/ui/ArtistCard";
 import ArtistFilterBar from "@/components/ui/ArtistFilterBar";
-import { notFound } from "next/navigation";
+import { siteConfig } from "@/lib/config/site";
+import { pageMetadata } from "@/lib/seo/metadata";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ category: string }>;
+}): Promise<Metadata> {
+  const { category } = await params;
+  const decodedCategory = decodeURIComponent(category);
+  return pageMetadata({
+    title: `${decodedCategory} Artists`,
+    description: `Browse and book ${decodedCategory.toLowerCase()} artists for weddings, corporate events, and private parties across India on ${siteConfig.name}.`,
+    path: `/category/${category}`,
+  });
+}
 
 export default async function CategoryArtistsPage({ 
   params, 
@@ -39,7 +55,7 @@ export default async function CategoryArtistsPage({
       <div className="artists-header">
         <div>
           <div className="section-label">Category</div>
-          <h2 className="section-title"><span>{decodedCategory}</span> Artists</h2>
+          <h1 className="section-title"><span>{decodedCategory}</span> Artists</h1>
           <p className="section-desc">Showing {artists.length} of {total} results for this category.</p>
         </div>
       </div>

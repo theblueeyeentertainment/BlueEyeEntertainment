@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getArtists } from "@/lib/services/artistService";
 export const dynamic = "force-dynamic";
 
@@ -8,6 +9,22 @@ import { authOptions } from "@/lib/auth/authOptions";
 import Link from "next/link";
 import ArtistCard from "@/components/ui/ArtistCard";
 import ArtistFilterBar from "@/components/ui/ArtistFilterBar";
+import { siteConfig } from "@/lib/config/site";
+import { pageMetadata } from "@/lib/seo/metadata";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}): Promise<Metadata> {
+  const { page } = await searchParams;
+  const path = page && page !== "1" ? `/artists?page=${page}` : "/artists";
+  return pageMetadata({
+    title: "Browse Artists",
+    description: `Discover and book verified singers, DJs, comedians, bands, and performers across India on ${siteConfig.name}.`,
+    path,
+  });
+}
 
 export default async function ArtistsPage({ searchParams }: { searchParams: Promise<{ page?: string, category?: string, city?: string, q?: string }> }) {
   const [params, session, categories, cities] = await Promise.all([
@@ -32,7 +49,7 @@ export default async function ArtistsPage({ searchParams }: { searchParams: Prom
       <div className="artists-header">
         <div>
           <div className="section-label">Browse All</div>
-          <h2 className="section-title">Discover <span>Artists</span></h2>
+          <h1 className="section-title">Discover <span>Artists</span></h1>
           <p className="section-desc">Showing {artists.length} of {total} artists</p>
         </div>
       </div>

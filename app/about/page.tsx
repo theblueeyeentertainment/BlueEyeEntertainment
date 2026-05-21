@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { siteConfig } from "@/lib/config/site";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata = {
-  title: `About Us | ${siteConfig.name}`,
+export const metadata = pageMetadata({
+  title: `About Us`,
   description: siteConfig.longDescription,
-};
+  path: "/about",
+});
 
 const benefits = [
   {

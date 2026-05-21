@@ -8,8 +8,8 @@ import ScrollReveal from "@/components/ui/ScrollReveal";
 import AuthProvider from "@/components/auth/AuthProvider";
 
 import CustomCursor from "@/components/ui/CustomCursor";
-import { LoadingProvider } from "@/lib/context/LoadingContext";
 import GlobalEyeBackground from "@/components/ui/GlobalEyeBackground";
+import { LoadingProvider } from "@/lib/context/LoadingContext";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -33,9 +33,11 @@ const jetbrains = JetBrains_Mono({
 });
 
 import { siteConfig } from "@/lib/config/site";
+import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/jsonld";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
+  applicationName: siteConfig.shortName,
   title: {
     default: `${siteConfig.name} | Book India's Top Artists`,
     template: `%s | ${siteConfig.name}`,
@@ -44,20 +46,24 @@ export const metadata: Metadata = {
   keywords: siteConfig.mainKeywords,
   authors: [{ name: siteConfig.author, url: siteConfig.url }],
   creator: siteConfig.author,
+  category: "entertainment",
   openGraph: {
     type: "website",
     locale: "en_IN",
     url: siteConfig.url,
-    title: `${siteConfig.name} | Book India's Top Artists`,
-    description: siteConfig.description,
+    title: {
+      default: `${siteConfig.name} | Book India's Top Artists`,
+      template: `%s | ${siteConfig.name}`,
+    },
+    description: siteConfig.longDescription || siteConfig.description,
     siteName: siteConfig.name,
     images: [
       {
         url: siteConfig.ogImage,
         width: 1200,
         height: 630,
-        alt: siteConfig.name,
-      },
+        alt: `${siteConfig.name} Open Graph Image`,
+      }
     ],
   },
   twitter: {
@@ -82,6 +88,7 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    nocache: false,
     googleBot: {
       index: true,
       follow: true,
@@ -99,7 +106,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="en-IN"
       data-theme="dark"
       className={`${playfair.variable} ${outfit.variable} ${limelight.variable} ${jetbrains.variable} h-full antialiased`}
     >
@@ -107,21 +114,14 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              name: siteConfig.name,
-              url: siteConfig.url,
-              logo: `${siteConfig.url}/icon.png`,
-              description: siteConfig.description,
-              sameAs: Object.values(siteConfig.links).filter(Boolean)
-            })
+            __html: JSON.stringify([organizationJsonLd(), websiteJsonLd()]),
           }}
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <GlobalEyeBackground />
         <LoadingProvider>
+          <CustomCursor />
+          <GlobalEyeBackground />
           <Suspense fallback={null}>
             <ScrollReveal />
           </Suspense>
@@ -130,7 +130,6 @@ export default function RootLayout({
             <main className="flex-grow">{children}</main>
             <Footer />
           </AuthProvider>
-
         </LoadingProvider>
       </body>
     </html>

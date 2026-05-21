@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getEventBySlug } from "@/lib/services/eventService";
 import { getRegistrationCountByEvent } from "@/lib/services/eventRegistrationService";
 import { notFound } from "next/navigation";
@@ -7,18 +8,31 @@ import EventRegistrationForm from "@/components/events/EventRegistrationForm";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/authOptions";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { eventJsonLd } from "@/lib/seo/jsonld";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const event = await getEventBySlug(slug);
   if (!event) return { title: "Event Not Found" };
-  return {
-    title: `${event.title} | BlueEye Events`,
-    description: event.shortDescription || event.description?.slice(0, 150) || "",
-    openGraph: { images: event.coverImage ? [event.coverImage] : [] },
-  };
+
+  const description =
+    event.shortDescription ||
+    (event.description ? event.description.slice(0, 160) : "Join this live event on Blue Eye Entertainment.");
+
+  return pageMetadata({
+    title: event.title,
+    description,
+    path: `/events/${slug}`,
+    image: event.coverImage,
+    openGraphType: "article",
+  });
 }
 
 export default async function EventDetailPage({
@@ -40,7 +54,11 @@ export default async function EventDetailPage({
     ["Completed", "Cancelled"].includes(event.status);
 
   return (
-    <div style={{ paddingTop: "var(--hdr-h)" }}>
+    <article style={{ paddingTop: "var(--hdr-h)" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd(event)) }}
+      />
       <div className="section-inner" style={{ paddingTop: "2rem", paddingBottom: "5rem" }}>
 
         {/* Top Header / Breadcrumbs & Admin shortcut */}
@@ -182,6 +200,6 @@ export default async function EventDetailPage({
 
         </div>
       </div>
-    </div>
+    </article>
   );
 }

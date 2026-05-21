@@ -1,9 +1,45 @@
+import type { Metadata } from "next";
 import { searchArtists } from "@/lib/services/searchService";
 import { getUserFavorites } from "@/lib/services/userService";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/authOptions";
 import Link from "next/link";
 import ArtistCard from "@/components/ui/ArtistCard";
+import { siteConfig } from "@/lib/config/site";
+import { noIndexRobots, pageMetadata } from "@/lib/seo/metadata";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; category?: string; city?: string }>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const q = params.q?.trim();
+
+  if (!q) {
+    return {
+      ...pageMetadata({
+        title: "Search Artists",
+        description: `Search singers, DJs, comedians, and live performers across India on ${siteConfig.name}.`,
+        path: "/search",
+      }),
+      robots: noIndexRobots,
+    };
+  }
+
+  const query = new URLSearchParams({ q });
+  if (params.category) query.set("category", params.category);
+  if (params.city) query.set("city", params.city);
+
+  return {
+    ...pageMetadata({
+      title: `Search: ${q}`,
+      description: `Find artists matching "${q}" for your next event on ${siteConfig.name}.`,
+      path: `/search?${query.toString()}`,
+    }),
+    robots: noIndexRobots,
+  };
+}
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string, category?: string, city?: string }> }) {
   const [params, session] = await Promise.all([
@@ -25,7 +61,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       <div className="artists-header">
         <div>
           <div className="section-label">Search Results</div>
-          <h2 className="section-title">Results for <span>"{q}"</span></h2>
+          <h1 className="section-title">Results for <span>"{q || "artists"}"</span></h1>
           <p className="section-desc">Found {totalCount} artists matching your search.</p>
         </div>
       </div>

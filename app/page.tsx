@@ -1,45 +1,15 @@
-import type { Metadata } from "next";
 import HomeDynamicContent from "@/components/home/HomeDynamicContent";
 import StatsBar from "@/components/home/StatsBar";
 import TestimonialsMarquee from "@/components/home/TestimonialsMarquee";
 import PlasmaWave from "@/components/react-bits/PlasmaWave";
 import { siteConfig } from "@/lib/config/site";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
-  title: "Book Celebrity Artists in India | Blue Eye Entertainment",
+export const metadata = pageMetadata({
+  title: "Book Celebrity Artists in India",
   description: siteConfig.description,
-  alternates: {
-    canonical: siteConfig.url,
-  },
-  openGraph: {
-    title: "Book Celebrity Artists in India | Blue Eye Entertainment",
-    description: siteConfig.description,
-    url: siteConfig.url,
-    siteName: siteConfig.name,
-    images: [{ url: siteConfig.ogImage, width: 1200, height: 630, alt: "Blue Eye Entertainment" }],
-    type: "website",
-    locale: "en_IN",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Book Celebrity Artists in India | Blue Eye Entertainment",
-    description:
-      "Book singers, DJs, comedians, Bollywood celebrities and live performers across India.",
-    images: [siteConfig.ogImage],
-  },
-};
-
-const websiteSchema = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: siteConfig.name,
-  url: siteConfig.url,
-  potentialAction: {
-    "@type": "SearchAction",
-    target: `${siteConfig.url}/search?q={search_term_string}`,
-    "query-input": "required name=search_term_string",
-  },
-};
+  path: "/",
+});
 
 const faqSchema = {
   "@context": "https://schema.org",
@@ -83,10 +53,6 @@ const faqSchema = {
 export default async function HomePage() {
   return (
     <div className="relative overflow-hidden">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
