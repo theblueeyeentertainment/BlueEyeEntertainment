@@ -133,7 +133,7 @@ export default function HomeBackground({ trailImages }: { trailImages?: string[]
       {trailImages && (
         <div style={{ display: 'none' }}>
           {trailImages.map((src, i) => (
-            <img key={i} src={src} alt="" />
+            <img key={i} src={src} alt={`Trail image ${i + 1}`} />
           ))}
         </div>
       )}

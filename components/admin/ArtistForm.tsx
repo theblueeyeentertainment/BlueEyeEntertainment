@@ -322,7 +322,7 @@ export default function ArtistForm({ initialData, mode, artistId }: ArtistFormPr
               <div className="admin-upload-grid">
                 {formData.media.images.map((img: string, i: number) => (
                   <div key={i} className="admin-upload-item">
-                    <img src={img.startsWith('http') ? img : `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/${img}`} alt="" />
+                    <img src={img.startsWith('http') ? img : `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/${img}`} alt={`Gallery image ${i + 1}`} />
                     <div onClick={() => setFormData({...formData, media: {...formData.media, images: formData.media.images.filter((_: string, idx: number)=>idx!==i)}})} className="admin-upload-delete">
                       Remove
                     </div>
@@ -365,7 +365,7 @@ export default function ArtistForm({ initialData, mode, artistId }: ArtistFormPr
                       {/* Thumbnail */}
                       <div style={{ width: '96px', height: '60px', borderRadius: '10px', overflow: 'hidden', flexShrink: 0, background: 'var(--bg3)', position: 'relative' }}>
                         {thumb ? (
-                          <img src={thumb} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <img src={thumb} alt={`YouTube video thumbnail for ${vid}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
                           <div style={{ width: '100%', height: '100%', display: 'grid', placeItems: 'center', opacity: 0.3 }}>
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="2"/><polygon points="10 8 16 12 10 16 10 8"/></svg>

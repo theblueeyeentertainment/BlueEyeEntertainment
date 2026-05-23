@@ -84,7 +84,7 @@ export default function GlobalEyeBackground() {
             >
               <Image
                 src={image.src}
-                alt=""
+                alt={`Eye image ${i + 1}`}
                 fill
                 sizes="min(1000px, 95vw)"
                 className="eyeball-img"

@@ -189,8 +189,9 @@ export default function AdminArtistsPage() {
                       <div className="admin-artist-thumb">
                         <img 
                           src={artist.media?.images?.[0] ? (artist.media.images[0].startsWith('http') ? artist.media.images[0] : `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/${artist.media.images[0]}`) : "https://placehold.co/100x100/1a1a1a/d4a017?text=Artist"} 
-                          alt=""
+                          alt={artist.name ? `${artist.name} profile picture` : "Artist profile picture"}
                         />
+                  
                       </div>
                       <div>
                         <div className="font-bold text-lg">{artist.name}</div>

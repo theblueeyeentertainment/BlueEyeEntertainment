@@ -85,7 +85,7 @@ export default function AdminEventsPage() {
                   <td style={{ width: "auto", minWidth: "280px", maxWidth: "none" }}>
                     <div className="flex items-center gap-4">
                       {ev.coverImage ? (
-                        <img src={ev.coverImage} alt="" style={{ width: 50, height: 50, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
+                        <img src={ev.coverImage} alt={ev.title ? `${ev.title} cover image` : "Event cover image"} style={{ width: 50, height: 50, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
                       ) : (
                         <div style={{ width: 50, height: 50, borderRadius: 10, background: "rgba(212,160,23,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
