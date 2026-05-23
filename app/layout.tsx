@@ -113,7 +113,7 @@ export default function RootLayout({
       className={`${playfair.variable} ${outfit.variable} ${limelight.variable} ${jetbrains.variable} h-full antialiased`}
     >
       <head>
-        <link rel="preload" as="image" href="/eye.webp" type="image/webp" fetchPriority="high" />
+        {/* <link rel="preload" as="image" href="/eye.webp" type="image/webp" fetchPriority="high" /> */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

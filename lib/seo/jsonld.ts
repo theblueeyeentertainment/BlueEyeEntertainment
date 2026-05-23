@@ -7,7 +7,7 @@ export function organizationJsonLd() {
     "@type": "Organization",
     name: siteConfig.name,
     url: siteConfig.url,
-    logo: `${siteConfig.url}/android-chrome-192x192.png`,
+    logo: `${siteConfig.url}/icon.png`,
     description: siteConfig.description,
     sameAs: Object.values(siteConfig.links).filter(Boolean),
   };
@@ -38,11 +38,12 @@ export function websiteJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${siteConfig.url}#website`,
     name: siteConfig.name,
-    alternateName: [siteConfig.shortName, "Blue Eye Entertainment", "blueeyeentertainment.in"],
+    alternateName: "BlueEye Entertainment",
     url: siteConfig.url,
     description: siteConfig.description,
-    publisher: { "@type": "Organization", name: siteConfig.name, url: siteConfig.url },
+    publisher: { "@type": "Organization", "@id": `${siteConfig.url}#organization`, name: siteConfig.name, url: siteConfig.url },
     potentialAction: {
       "@type": "SearchAction",
       target: {
@@ -143,14 +144,14 @@ export function eventJsonLd(event: {
     },
     ...(event.venue?.name || event.venue?.city
       ? {
-          location: {
-            "@type": "Place",
-            name: event.venue.name || event.venue.city,
-            ...(event.venue.city
-              ? { address: { "@type": "PostalAddress", addressLocality: event.venue.city } }
-              : {}),
-          },
-        }
+        location: {
+          "@type": "Place",
+          name: event.venue.name || event.venue.city,
+          ...(event.venue.city
+            ? { address: { "@type": "PostalAddress", addressLocality: event.venue.city } }
+            : {}),
+        },
+      }
       : {}),
   };
 }
