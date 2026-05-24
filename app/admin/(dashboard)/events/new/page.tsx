@@ -1,13 +1,10 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth/authOptions";
-import { redirect } from "next/navigation";
 import EventForm from "@/components/admin/EventForm";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewEventPage() {
-  const session = await getServerSession(authOptions);
-  if (!session || (session.user as any).role !== "admin") redirect("/login");
+  await requireAdmin();
 
   return (
     <div className="fade-in">

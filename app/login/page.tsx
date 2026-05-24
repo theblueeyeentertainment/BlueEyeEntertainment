@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, FormEvent, Suspense } from "react";
-import { signIn } from "next-auth/react";
+import { useState, FormEvent, Suspense, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { useLoading } from "@/lib/context/LoadingContext";
-import { siteConfig } from "@/lib/config/site";
+import SwitchAccountPanel from "@/components/auth/SwitchAccountPanel";
 
 type View = "login" | "register" | "verify" | "forgot-password" | "reset-password";
 
@@ -14,8 +13,16 @@ function LoginPageContent() {
   const { setIsLoading } = useLoading();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const { data: session, status: authStatus } = useSession();
 
-  const [view, setView] = useState<View>("login");
+  const initialView: View =
+    searchParams.get("view") === "register" ? "register" : "login";
+
+  const [view, setView] = useState<View>(initialView);
+
+  useEffect(() => {
+    if (searchParams.get("view") === "register") setView("register");
+  }, [searchParams]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -179,19 +186,63 @@ function LoginPageContent() {
     }
   };
 
+  const showSwitchAccount =
+    authStatus === "authenticated" && (view === "login" || view === "register");
+
+  if (authStatus === "loading") {
+    return (
+      <main
+        className="section-inner"
+        style={{
+          minHeight: "80vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "calc(var(--hdr-h) + 2rem) 1rem 2rem",
+        }}
+      >
+        <p style={{ color: "var(--text3)" }}>Loading…</p>
+      </main>
+    );
+  }
+
   return (
     <main className="section-inner" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'calc(var(--hdr-h) + 2rem) 1rem 2rem 1rem' }}>
       <div style={{ width: '100%', maxWidth: '450px', background: 'var(--surface)', padding: '2.5rem', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}>
         
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <h1 style={{ fontSize: '2rem', fontFamily: 'var(--font-display)', fontWeight: 900, marginBottom: '0.5rem' }}>
-            {view === 'login' ? 'Welcome Back' : view === 'register' ? 'Create Account' : view === 'forgot-password' ? 'Reset Password' : view === 'reset-password' ? 'Set New Password' : 'Verify Email'}
+            {showSwitchAccount
+              ? "Switch account"
+              : view === 'login'
+                ? 'Welcome Back'
+                : view === 'register'
+                  ? 'Create Account'
+                  : view === 'forgot-password'
+                    ? 'Reset Password'
+                    : view === 'reset-password'
+                      ? 'Set New Password'
+                      : 'Verify Email'}
           </h1>
           <p style={{ color: 'var(--text3)', fontSize: '0.9rem' }}>
-            {view === 'login' ? 'Enter your credentials to continue' : view === 'register' ? 'Join India\'s premium artist platform' : view === 'forgot-password' ? 'Enter your email to receive an OTP' : view === 'reset-password' ? 'Enter the OTP sent to your email and your new password' : 'Enter the 6-digit code sent to your email'}
+            {showSwitchAccount
+              ? "You're already signed in. Sign out or use Google to continue with a different account."
+              : view === 'login'
+                ? 'Enter your credentials to continue'
+                : view === 'register'
+                  ? "Join India's premium artist platform"
+                  : view === 'forgot-password'
+                    ? 'Enter your email to receive an OTP'
+                    : view === 'reset-password'
+                      ? 'Enter the OTP sent to your email and your new password'
+                      : 'Enter the 6-digit code sent to your email'}
           </p>
         </div>
 
+        {showSwitchAccount ? (
+          <SwitchAccountPanel callbackUrl={callbackUrl} />
+        ) : (
+          <>
         {error && <div style={{ background: 'rgba(255,107,107,0.1)', color: '#ff6b6b', padding: '0.75rem', borderRadius: '10px', fontSize: '0.85rem', marginBottom: '1.5rem', border: '1px solid rgba(255,107,107,0.2)' }}>{error}</div>}
         {success && <div style={{ background: 'rgba(76,201,240,0.1)', color: '#4cc9f0', padding: '0.75rem', borderRadius: '10px', fontSize: '0.85rem', marginBottom: '1.5rem', border: '1px solid rgba(76,201,240,0.2)' }}>{success}</div>}
 
@@ -369,6 +420,8 @@ function LoginPageContent() {
               Didn't receive code? <button type="button" onClick={handleRegister} style={{ color: 'var(--gold)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Resend</button>
             </p>
           </form>
+        )}
+          </>
         )}
 
       </div>
