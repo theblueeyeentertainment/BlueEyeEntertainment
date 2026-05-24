@@ -154,6 +154,11 @@ nav a:hover::after {
   border-radius: 2px;
   transition: all var(--tr);
 }
+/* Breathing room above footer on all public pages */
+.site-main {
+  padding-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+
 /* ── FOOTER ───────────────────────────────────────── */
 footer {
   background: var(--bg2);

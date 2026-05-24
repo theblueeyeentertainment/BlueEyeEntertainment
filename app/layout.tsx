@@ -129,7 +129,7 @@ export default function RootLayout({
           </Suspense>
           <AuthProvider>
             <Navbar />
-            <main className="flex-grow">{children}</main>
+            <main className="site-main flex-grow">{children}</main>
             <Footer />
           </AuthProvider>
         </LoadingProvider>
