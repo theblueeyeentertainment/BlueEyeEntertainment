@@ -932,6 +932,7 @@ section {
   position: relative;
   overflow: hidden;
   flex: 0 1 180px;
+  width: 100%;
 }
 
 .cat-card::before {
@@ -1639,6 +1640,10 @@ section {
 
   .artists-grid {
     grid-template-columns: 1fr;
+  }
+
+  .cat-card {
+    flex: 1 1 100%;
   }
 }
 

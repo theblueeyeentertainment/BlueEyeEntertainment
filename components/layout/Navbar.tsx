@@ -81,7 +81,7 @@ export default function Navbar() {
           </Link>
 
           <nav>
-            <Link href="/#categories">Categories</Link>
+            <Link href="/categories">Categories</Link>
             <Link href="/artists">Artists</Link>
             <Link href="/events">Events</Link>
             <Link href="/about">About</Link>
