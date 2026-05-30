@@ -9,14 +9,15 @@ export const metadata = pageMetadata({
 });
 
 export default function ContactPage() {
-  const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "contact@BlueEye.com";
-  const phone = process.env.NEXT_PUBLIC_CONTACT_PHONE || "+91 98765 43210";
-  const address = process.env.NEXT_PUBLIC_CONTACT_ADDRESS || "Mumbai, India";
-  const twitterUrl = process.env.NEXT_PUBLIC_TWITTER_URL || "https://twitter.com/BlueEye";
-  const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL || "https://instagram.com/BlueEye";
-  const facebookUrl = process.env.NEXT_PUBLIC_FACEBOOK_URL || "https://facebook.com/BlueEye";
-  const youtubeUrl = process.env.NEXT_PUBLIC_YOUTUBE_URL || "https://youtube.com/@BlueEye";
-  const twitterHandle = process.env.NEXT_PUBLIC_TWITTER_HANDLE || "@BlueEye";
+  const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "";
+  const phone = process.env.NEXT_PUBLIC_CONTACT_PHONE || "";
+  const address1 = process.env.NEXT_PUBLIC_CONTACT_ADDRESS_1 || "";
+  const address2 = process.env.NEXT_PUBLIC_CONTACT_ADDRESS_2 || "";
+  const twitterUrl = process.env.NEXT_PUBLIC_TWITTER_URL || "";
+  const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL || "";
+  const facebookUrl = process.env.NEXT_PUBLIC_FACEBOOK_URL || "";
+  const youtubeUrl = process.env.NEXT_PUBLIC_YOUTUBE_URL || "";
+  const twitterHandle = process.env.NEXT_PUBLIC_TWITTER_HANDLE || "";
 
   return (
     <div className="section-inner pt-nav" style={{ minHeight: '90vh', paddingBottom: '4rem' }}>
@@ -76,7 +77,8 @@ export default function ContactPage() {
               </div>
               <div>
                 <div className="contact-item-label">Headquarters</div>
-                <span className="contact-plain">{address}</span>
+                {address1 && <span className="contact-plain">{address1}</span>}
+                {address2 && <span className="contact-plain">{address2}</span>}
               </div>
             </div>
           </div>

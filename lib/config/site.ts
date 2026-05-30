@@ -19,6 +19,7 @@ export interface SiteConfig {
   contactEmail?: string;
   contactPhone?: string;
   address?: string;
+  address2?: string;
 }
 
 export const siteConfig: SiteConfig = {
@@ -90,7 +91,8 @@ export const siteConfig: SiteConfig = {
   twitterHandle: process.env.NEXT_PUBLIC_TWITTER_HANDLE,
   contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL,
   contactPhone: process.env.NEXT_PUBLIC_CONTACT_PHONE,
-  address: process.env.NEXT_PUBLIC_CONTACT_ADDRESS,
+  address: process.env.NEXT_PUBLIC_CONTACT_ADDRESS_1,
+  address2: process.env.NEXT_PUBLIC_CONTACT_ADDRESS_2,
 };
 
 
