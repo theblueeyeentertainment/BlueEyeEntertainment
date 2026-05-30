@@ -7,6 +7,29 @@ export default function AdminEventsPage() {
   const [events, setEvents] = useState<any[]>([]);
   const [stats, setStats] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
+  const [backingUp, setBackingUp] = useState(false);
+
+  const handleBackup = async () => {
+    setBackingUp(true);
+    try {
+      const res = await fetch("/api/admin/backup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "events" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Backup completed");
+      } else {
+        alert("Backup failed: " + (data.error || "Unknown error"));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Backup failed");
+    } finally {
+      setBackingUp(false);
+    }
+  };
 
   useEffect(() => {
     fetch("/api/admin/events?limit=50")
@@ -36,9 +59,28 @@ export default function AdminEventsPage() {
             Create and manage events, post timeline updates, and handle registrations.
           </p>
         </div>
-        <Link href="/admin/events/new" className="btn-primary py-3 px-6 rounded-xl text-sm font-bold no-underline">
-          + Create Event
-        </Link>
+        <div className="flex gap-4">
+          <button 
+            onClick={handleBackup} 
+            disabled={backingUp} 
+            className="btn-outline flex items-center gap-2 border-gold/40 text-gold hover:bg-gold/10 disabled:opacity-50 py-3 px-6 rounded-xl text-sm font-bold"
+          >
+            {backingUp ? (
+              <>
+                <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>
+                Backing up...
+              </>
+            ) : (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Back Up RN
+              </>
+            )}
+          </button>
+          <Link href="/admin/events/new" className="btn-primary py-3 px-6 rounded-xl text-sm font-bold no-underline">
+            + Create Event
+          </Link>
+        </div>
       </div>
 
       {/* Elegant Dashboard Stats Widgets */}

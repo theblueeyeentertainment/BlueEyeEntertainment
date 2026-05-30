@@ -22,6 +22,7 @@ export default function AdminInquiriesPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [backingUp, setBackingUp] = useState(false);
   const [modal, setModal] = useState<{
     isOpen: boolean;
     title: string;
@@ -33,6 +34,28 @@ export default function AdminInquiriesPage() {
     message: "",
     onConfirm: () => {},
   });
+
+  const handleBackup = async () => {
+    setBackingUp(true);
+    try {
+      const res = await fetch("/api/admin/backup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "inquiries" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Backup completed");
+      } else {
+        alert("Backup failed: " + (data.error || "Unknown error"));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Backup failed");
+    } finally {
+      setBackingUp(false);
+    }
+  };
 
   const fetchInquiries = async (query = "") => {
     setLoading(true);
@@ -121,13 +144,32 @@ export default function AdminInquiriesPage() {
           </h1>
           <p className="admin-subtitle">Manage lead requests from clients interested in artists.</p>
         </div>
-        
-        {selectedIds.length > 0 && (
-          <button onClick={handleBulkDelete} className="btn-outline border-crimson text-crimson bg-crimson/10 flex items-center gap-2">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-            Delete Selected ({selectedIds.length})
+        <div className="flex gap-4">
+          <button 
+            onClick={handleBackup} 
+            disabled={backingUp} 
+            className="btn-outline flex items-center gap-2 border-gold/40 text-gold hover:bg-gold/10 disabled:opacity-50"
+          >
+            {backingUp ? (
+              <>
+                <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>
+                Backing up...
+              </>
+            ) : (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Back Up RN
+              </>
+            )}
           </button>
-        )}
+
+          {selectedIds.length > 0 && (
+            <button onClick={handleBulkDelete} className="btn-outline border-crimson text-crimson bg-crimson/10 flex items-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+              Delete Selected ({selectedIds.length})
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="admin-table-container" style={{ marginTop: "1rem" }}>
