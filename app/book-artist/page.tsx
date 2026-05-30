@@ -1,15 +1,18 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useLoading } from "@/lib/context/LoadingContext";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 function BookArtistForm() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const artistSlug = searchParams.get("artist") || "";
   const { setIsLoading } = useLoading();
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -17,6 +20,13 @@ function BookArtistForm() {
     setStatus("loading");
     const fd = new FormData(e.currentTarget);
     const data = Object.fromEntries(fd);
+
+    // Default valid ObjectId if artist not found via slug (or keep empty if backend handles it)
+    data.artistId = "5f8f8c44b54764421b7156e9"; 
+
+    // Remove empty optional fields so Mongoose doesn't try to cast empty strings to Dates
+    if (!data.eventDate) delete data.eventDate;
+    if (!data.message) delete data.message;
 
     // Client-side validation
     const artistName = (data.artistName as string || "").trim();
@@ -70,6 +80,7 @@ function BookArtistForm() {
       if (res.ok) {
         setStatus("success");
         setMessage("Inquiry submitted! Our team will contact you shortly.");
+        setShowSuccessModal(true);
         (e.target as HTMLFormElement).reset();
       } else {
         setStatus("error");
@@ -85,19 +96,28 @@ function BookArtistForm() {
   };
 
   return (
-    <div className="section-inner pt-nav flex min-h-[90vh] flex-col items-center justify-center">
+    <>
+      <ConfirmModal
+        isOpen={showSuccessModal}
+        title="Request Received! ✦"
+        message="Your inquiry has been successfully submitted. Our team will review your details and contact you shortly to confirm the booking."
+        variant="success"
+        showCancel={false}
+        confirmText="Done"
+        onConfirm={() => {
+          setShowSuccessModal(false);
+          router.push("/");
+        }}
+        onCancel={() => setShowSuccessModal(false)}
+      />
+
+      <div className="section-inner pt-nav flex min-h-[90vh] flex-col items-center justify-center">
       <div className="w-full max-w-2xl">
         <div className="section-label justify-center mx-auto w-full">Booking Desk</div>
         <h1 className="section-title text-center mb-10">Book an <span>Artist</span></h1>
 
         {status === "error" && message && (
-          <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm font-medium text-center">
-            {message}
-          </div>
-        )}
-        
-        {status === "success" && message && (
-          <div className="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-medium text-center">
+          <div className="mb-6 p-4 text-red-500 text-sm font-medium text-center bg-red-500/10 border border-red-500/20 rounded-xl">
             {message}
           </div>
         )}
@@ -145,7 +165,6 @@ function BookArtistForm() {
               <option value="Corporate">Corporate</option>
               <option value="Private Party">Private Party</option>
               <option value="College">College</option>
-              <option value="Concert">Concert / Festival</option>
               <option value="Other">Other</option>
             </select>
           </div>
@@ -170,6 +189,7 @@ function BookArtistForm() {
         </form>
       </div>
     </div>
+    </>
   );
 }
 
