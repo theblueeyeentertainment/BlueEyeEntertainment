@@ -39,18 +39,35 @@ export async function getArtists(params: { category?: string; city?: string; pag
   const limit = Math.min(24, params.limit || 12);
   const skip = (page - 1) * limit;
 
-  const query = Artist.find(filter);
-  
+  let artists;
   if (params.q) {
-    query.select({ score: { $meta: "textScore" } }).sort({ score: { $meta: "textScore" } });
+    artists = await Artist.find(filter)
+      .select({ score: { $meta: "textScore" } })
+      .sort({ score: { $meta: "textScore" } })
+      .skip(skip)
+      .limit(limit)
+      .lean();
   } else {
-    query.sort({ createdAt: -1 });
+    artists = await Artist.aggregate([
+      { $match: filter },
+      {
+        $addFields: {
+          hasImage: {
+            $cond: [
+              { $gt: [{ $size: { $ifNull: ["$media.images", []] } }, 0] },
+              1,
+              0
+            ]
+          }
+        }
+      },
+      { $sort: { hasImage: -1, createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit }
+    ]);
   }
 
-  const [artists, total] = await Promise.all([
-    query.skip(skip).limit(limit).lean(),
-    Artist.countDocuments(filter)
-  ]);
+  const total = await Artist.countDocuments(filter);
 
   
   return JSON.parse(JSON.stringify({ 
