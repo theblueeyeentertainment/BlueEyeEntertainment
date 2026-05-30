@@ -10,6 +10,7 @@ export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [favorites, setFavorites] = useState<any[]>([]);
+  const [inquiries, setInquiries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // User Profile States (for live DB data)
@@ -70,6 +71,15 @@ export default function ProfilePage() {
             setMyReview(data.data);
             setRating(data.data.rating);
             setText(data.data.text);
+          }
+        });
+
+      // 4. Fetch user's inquiries
+      fetch("/api/users/inquiries")
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setInquiries(data.data);
           }
         });
     }
@@ -423,6 +433,35 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
+      <div className="section-header" style={{ marginTop: '1rem' }}>
+        <h2 className="section-title">Your <span>Inquiries</span></h2>
+        <p className="section-desc">Booking requests you have submitted to our team.</p>
+      </div>
+
+      {inquiries.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '4rem 2rem', background: 'rgba(255,255,255,0.02)', borderRadius: '20px', border: '1px dashed var(--border)', marginBottom: '4rem' }}>
+          <p style={{ color: 'var(--text3)' }}>You haven't submitted any inquiries yet.</p>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gap: '1rem', marginBottom: '4rem' }}>
+          {inquiries.map((inq) => (
+            <div key={inq._id} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', padding: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '1.5rem', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fff', marginBottom: '0.25rem' }}>{inq.artistName}</h4>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text3)' }}>
+                  {inq.eventType} • {inq.eventDate ? new Date(inq.eventDate).toLocaleDateString() : 'Date TBD'}
+                </p>
+                {inq.message && <p style={{ fontSize: '0.85rem', color: 'var(--text2)', marginTop: '0.5rem', fontStyle: 'italic' }}>"{inq.message}"</p>}
+              </div>
+              <div>
+                <span style={{ padding: '0.4rem 0.75rem', borderRadius: '100px', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', background: inq.status === 'New' ? 'rgba(76,201,240,0.1)' : inq.status === 'Contacted' ? 'rgba(212,160,23,0.1)' : 'rgba(255,107,107,0.1)', color: inq.status === 'New' ? '#4cc9f0' : inq.status === 'Contacted' ? 'var(--gold)' : '#ff6b6b' }}>
+                  {inq.status}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="section-header">
         <h2 className="section-title">Your <span>Favorites</span></h2>
