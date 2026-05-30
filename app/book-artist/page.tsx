@@ -125,7 +125,7 @@ function BookArtistForm() {
         <form onSubmit={handleSubmit} className="admin-section space-y-8">
           
           <div>
-            <label className="block text-sm font-medium mb-2 opacity-70">Artist Name</label>
+            <label className="form-label">Artist Name</label>
             <input 
               type="text" 
               name="artistName" 
@@ -138,28 +138,28 @@ function BookArtistForm() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium mb-2 opacity-70">Your Name</label>
+              <label className="form-label">Your Name</label>
               <input type="text" name="clientName" required className="filter-input" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2 opacity-70">Email Address</label>
+              <label className="form-label">Email Address</label>
               <input type="email" name="clientEmail" required className="filter-input" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium mb-2 opacity-70">Phone Number</label>
+              <label className="form-label">Phone Number</label>
               <input type="tel" name="clientPhone" required className="filter-input" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2 opacity-70">Event Date</label>
+              <label className="form-label">Event Date</label>
               <input type="date" name="eventDate" className="filter-input" />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2 opacity-70">Type of Event</label>
+            <label className="form-label">Type of Event</label>
             <select name="eventType" required className="filter-select w-full">
               <option value="Wedding">Wedding</option>
               <option value="Corporate">Corporate</option>
@@ -170,7 +170,7 @@ function BookArtistForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2 opacity-70">Message / Requirements</label>
+            <label className="form-label">Message / Requirements</label>
             <textarea 
               name="message" 
               rows={4} 

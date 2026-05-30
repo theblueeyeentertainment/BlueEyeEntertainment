@@ -32,7 +32,7 @@ export const authOptions: NextAuthOptions = {
         if (adminEmail && adminPasswordHash && credentials.email.toLowerCase() === adminEmail.toLowerCase()) {
           const matches = await bcrypt.compare(credentials.password, adminPasswordHash);
           if (matches) {
-            console.log("Predefined Admin logged in:", adminEmail);
+            // console.log("Predefined Admin logged in:", adminEmail);
             return { id: "admin-static", email: adminEmail, name: "Admin", role: "admin" };
           }
         }

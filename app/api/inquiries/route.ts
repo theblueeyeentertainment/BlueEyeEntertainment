@@ -6,6 +6,7 @@ import { apiSuccess, apiError } from "@/lib/utils/apiResponse";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/authOptions";
 import { sendInquiryEmail } from "@/lib/utils/email";
+
 // PUBLIC: Submit a new inquiry
 export async function POST(request: Request) {
   try {

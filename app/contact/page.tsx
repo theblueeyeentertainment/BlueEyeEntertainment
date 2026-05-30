@@ -18,6 +18,7 @@ export default function ContactPage() {
   const facebookUrl = process.env.NEXT_PUBLIC_FACEBOOK_URL || "";
   const youtubeUrl = process.env.NEXT_PUBLIC_YOUTUBE_URL || "";
   const twitterHandle = process.env.NEXT_PUBLIC_TWITTER_HANDLE || "";
+  const whatsappNumber = process.env.WHATSAPP_PHONE_NUMBER || "";
 
   return (
     <div className="section-inner pt-nav" style={{ minHeight: '90vh', paddingBottom: '4rem' }}>
@@ -66,6 +67,7 @@ export default function ContactPage() {
                 <a href={`tel:${phone.replace(/\s+/g, '')}`} className="contact-link">{phone}</a>
               </div>
             </div>
+
 
             {/* Address */}
             <div className="contact-item">
@@ -130,6 +132,25 @@ export default function ContactPage() {
               <span className="social-name">YouTube</span>
               <span className="social-sub">Watch live shows</span>
             </a>
+                        {/* WhatsApp Click-to-Chat */}
+            {whatsappNumber && (
+              <a href={`https://wa.me/${whatsappNumber}?text=Hi%20there`} target="_blank" rel="noopener noreferrer" className="social-card2">
+                <div className="contact-icon-wrap" style={{ borderColor: 'var(--gold)', color: 'var(--gold)' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                  </svg>
+                </div>
+                <div>
+                  <div className="contact-item-label">WhatsApp Us</div>
+                  <p
+                    className="contact-link"
+                    style={{ color: 'var(--gold)' }}
+                  >
+                    Click to Chat
+                  </p>
+                </div>
+              </a>
+            )}
           </div>
         </div>
       </div>

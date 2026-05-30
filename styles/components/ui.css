@@ -7,6 +7,17 @@
 .pt-nav {
   padding-top: calc(var(--hdr-h) + 2rem);
 }
+
+/* ── FORMS ────────────────────────────────────────── */
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.7;
+}
+
 .section-label {
   display: flex;
   align-items: center;
