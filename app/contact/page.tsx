@@ -76,9 +76,20 @@ export default function ContactPage() {
                 </svg>
               </div>
               <div>
-                <div className="contact-item-label">Headquarters</div>
-                {address1 && <span className="contact-plain">{address1}</span>}
-                {address2 && <span className="contact-plain">{address2}</span>}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  {address1 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                      <span className="contact-item-label" style={{ fontSize: '0.8rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.75px', fontWeight: '600' }}>Address 1</span>
+                      <span className="contact-plain" style={{ lineHeight: '1.6' }}>{address1}</span>
+                    </div>
+                  )}
+                  {address2 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                      <span className="contact-item-label" style={{ fontSize: '0.8rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.75px', fontWeight: '600' }}>Address 2</span>
+                      <span className="contact-plain" style={{ lineHeight: '1.6' }}>{address2}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
